@@ -5,12 +5,12 @@ import cn.hutool.core.util.StrUtil;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.wrx.entity.SysRole;
-import com.wrx.entity.User;
+import com.wrx.entity.Employee;
+import com.wrx.entity.Role;
 import com.wrx.exception.NoRolesException;
-import com.wrx.service.IUserService;
+import com.wrx.service.IEmployeeService;
 import com.wrx.util.JwtUtil;
-import com.wrx.util.LoginUser;
+import com.wrx.util.LoginEmployee;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Resource
     @Lazy(value = true)//避免循环调用，延迟加载，用到懒加载
-    private IUserService userService;
+    private IEmployeeService userService;
     //由 handlerExceptionResolver 引入全局异常
     @Resource
     private HandlerExceptionResolver handlerExceptionResolver;
@@ -65,18 +65,18 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             Long userId = claim.asLong();
             //通过userId去数据库中查询user对应的角色
             //TODO 从redis（内存）中获取user对应的角色，高频访问的数据存入redis
-            User user = new User();
-            user.setId(userId);
-            List<SysRole> sysRoleList = userService.selectRolesByUserId(user);
+            Employee employee = new Employee();
+            employee.setId(Math.toIntExact(userId));
+            List<Role> roleList = userService.selectRolesByUserId(employee);
             //从角链表中获取Role_key形成List<String>:{"ROLE_teacher","ROLE_edu_admin"}
-            List<String> roles = sysRoleList.stream().map(role -> role.getRoleKey()).collect(Collectors.toList());
+            List<String> roles = roleList.stream().map(role -> role.getRoleKey()).collect(Collectors.toList());
 
-            LoginUser loginUser = new LoginUser();
-            loginUser.setUser(user);
-            loginUser.setPermissions(roles);
+            LoginEmployee loginEmployee = new LoginEmployee();
+            loginEmployee.setEmployee(employee);
+            loginEmployee.setPermissions(roles);
             // 把 usernamePasswordAuthenticationToken 设置到 security 框架，由 security 框架对后面的资源方法进行鉴权
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                    loginUser, null, loginUser.getAuthorities());
+                    loginEmployee, null, loginEmployee.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             //token 快要过期的处理
             Claim exp = decode.getClaim("exp");
@@ -87,7 +87,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             // 剩余时间低于 30 分钟，如果还在访问就续签（重新派发一个新的 token,继续获得有效期），需要前端配合检查响应头中是否
             //有 token，有 token 则重新存入 SessionStorage
             if (time <= 30) {
-                String token2 = JwtUtil.creatToken(user,roles);
+                String token2 = JwtUtil.creatToken(employee,roles);
                 response.setHeader("token", token2);
                 response.setHeader("Access-Control-Expose-Headers", "token");// 跨域
             }

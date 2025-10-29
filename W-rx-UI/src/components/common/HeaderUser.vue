@@ -19,7 +19,7 @@
       </el-menu>
     </div>
 		<div class="header-right">
-			<div class="header-user-con">
+			<div class="header-employee-con">
 				<!-- 全屏显示 -->
 				<div class="btn-fullscreen" @click="handleFullScreen">
 					<el-tooltip effect="dark" :content="fullscreen?`取消全屏`:`全屏`" placement="bottom">
@@ -28,11 +28,11 @@
 				</div>
 
 				<!-- 用户头像 -->
-				<div class="user-avator">
+				<div class="employee-avator">
 					<img src="../../assets/img/img.jpg" />
 				</div>
 				<!-- 用户名下拉菜单 -->
-				<el-dropdown class="user-name" trigger="click" @command="handleCommand">
+				<el-dropdown class="employee-name" trigger="click" @command="handleCommand">
 					<span class="el-dropdown-link">
 						{{username}}
 						<i class="el-icon-caret-bottom"></i>
@@ -119,12 +119,12 @@
 						trigger: 'blur'
 					}]
 				},
-				user: JSON.parse(sessionStorage.getItem('user'))
+				employee: JSON.parse(sessionStorage.getItem('user'))
 			};
 		},
 		computed: {
 			username() {
-				let username = this.user.username;
+				let username = this.employee.username;
 				return username ? username : this.name;
 			}
 		},
@@ -155,14 +155,14 @@
 				this.editVisible = false;
 			},
 			saveEdit() {
-				// console.log(this.user);
+				// console.log(this.employee);
 				this.$refs.form.validate((valid) => {
 					if (valid) {
 						let data = {
-							jobId: this.user.jobId,
+							jobId: this.employee.jobId,
 							password: this.form.password
 						};
-						ajaxPost("/user/updateUserPassword", data).then(res => {
+						ajaxPost("/employee/updateUserPassword", data).then(res => {
 							if (res) {
 								this.$message.success(`密码修改成功`);
 								this.editVisible = false;
@@ -182,7 +182,7 @@
 			// 用户名下拉菜单选择事件
 			handleCommand(command) {
 				if (command == 'loginout') {
-					sessionStorage.removeItem('user');
+					sessionStorage.removeItem('employee');
 					this.$store.commit('setRoles', []);
 					this.$router.push('/login');
 					//this.$router.replace({path: '/login'});
@@ -282,7 +282,7 @@ justify-content: center;
 	padding-right: 50px;
 }
 
-	.header-user-con {
+	.header-employee-con {
 		display: flex;
 		height: 70px;
 		align-items: center;
@@ -325,15 +325,15 @@ justify-content: center;
 		color: black;
 	}
 
-	.user-name {
+	.employee-name {
 		margin-left: 10px;
 	}
 
-	.user-avator {
+	.employee-avator {
 		margin-left: 20px;
 	}
 
-	.user-avator img {
+	.employee-avator img {
 		display: block;
 		width: 40px;
 		height: 40px;

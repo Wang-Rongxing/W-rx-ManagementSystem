@@ -6,7 +6,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wrx.entity.User;
+import com.wrx.entity.Employee;
 
 import java.util.Date;
 import java.util.List;
@@ -26,11 +26,11 @@ public class JwtUtil {
      *前后端通过 jwt 传递角色（List<String> roles）鉴权
      * 把 user 和权限转换为 toke，jwt 只支持基本数据类型，首先必须把 user 转换为 json 格式的字符
      *生成 token 把 user 也加入到负载只是把 token 弄得复杂点*/
-    public static String creatToken(User user, List<String> roles) {//创建 token
+    public static String creatToken(Employee employee, List<String> roles) {//创建 token
 //
         ObjectMapper objectMapper = new ObjectMapper();//Jackson 转换 json 类
         String userStr = null;
-        try { userStr = objectMapper.writeValueAsString(user);//user 转换为 json 格式
+        try { userStr = objectMapper.writeValueAsString(employee);//user 转换为 json 格式
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }return JWT.create()

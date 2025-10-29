@@ -119,7 +119,7 @@
 <style scoped>
     .drag-box{
         display: flex;
-        user-select: none;
+        employee-select: none;
     }
     .drag-box-item {
         flex: 1;
