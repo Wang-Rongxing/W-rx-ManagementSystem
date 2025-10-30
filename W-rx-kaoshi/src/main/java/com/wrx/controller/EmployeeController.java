@@ -70,7 +70,7 @@ public class EmployeeController {
     }
     
     //删除员工
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public boolean deleteEmployee(@PathVariable Integer id){
         if (id == null || id <= 0) {
             return false;

@@ -27,16 +27,14 @@ public interface IEmployeeService extends IService<Employee> {
     3、根据SysUserRole的role_id查询Role
      */
     Map<String,Object> selectUserAndRole(Employee employee, int pageIndex, int pageSize);
-
+    //更新员工角色
     boolean updateUserRole(EmployeeDto employeeDto);
-
+    //分页查询所有员工
     Map<String, Object> selectAllUser(Employee employee, int pageIndex, int pageSize);
-
     //根据user_id查询role
     List<Role> selectRolesByUserId(Employee employee);
     //登录
     LoginUserDto login(Employee employee);
-    
     // 重置密码
     boolean resetUserPassword(Integer id, String employeeId);
     //新增员工

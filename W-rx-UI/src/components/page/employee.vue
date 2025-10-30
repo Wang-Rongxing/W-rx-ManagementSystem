@@ -201,13 +201,13 @@
 						this.$message.error("获取数据失败，请稍后重试");
 					});
 				},
+      //根据id和name查询
       getDataByIdOrName() {
         // 构造正确的参数格式
         let searchParams = {
           employeeId: this.query.jobId,
           name: this.query.username
         };
-
         ajaxPost("/employee/selectEmployeeByIdOrName", searchParams).then(res => {
           if (res && res.records) {
             this.tableShow = true;
@@ -288,7 +288,7 @@
 					return;
 				}
 				console.log('删除员工ID:', row.id);
-				ajaxDelete('/employee', row.id).then(res => {
+				ajaxDelete('/employee/delete', row.id).then(res => {
 					if (res) {
 						this.$message.success('删除成功');
 						// 处理最后一页只有一条数据的情况
