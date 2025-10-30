@@ -123,61 +123,60 @@
 	export default {
 		name: 'basetable',
 		data() {
-			var validateJobid = (rule, value, callback) => {
-				let reg = /^[0-9]*$/;
-				if (!reg.test(value))
-					return callback(new Error('工号必须是数字符号'));
-				else
-					return callback();
-			};
-			return {
-				query: {
-					jobId: '',
-					username: '',
-					pageIndex: 1,
-					pageSize: 6
-				},
-				tableData: [],
-
-				tableShow: false,
-				editVisible: false,
-				addVisible: false,
-				pageTotal: 0,
-				pages: 0,
-				form: {
-					temppassword: '',
-					tempusername: '',
-				},
-				formAdd: {
-					name: '',
-          employeeId: '',
-          password: '',
-          phone: '',
-				},
-				rules: {
-					name: [{
-						required: true,
-						message: '请输入姓名',
-						trigger: 'blur'
-					}],
-					employeeId: [{
+				var validateJobid = (rule, value, callback) => {
+					let reg = /^[0-9]*$/;
+					if (!reg.test(value))
+						return callback(new Error('工号必须是数字符号'));
+					else
+						return callback();
+				};
+				return {
+					query: {
+						jobId: '',
+						username: '',
+						pageIndex: 1,
+						pageSize: 6
+					},
+					tableData: [],
+					tableShow: false,
+					editVisible: false,
+					addVisible: false,
+					pageTotal: 0,
+					pages: 0,
+					form: {
+						temppassword: '',
+						tempusername: '',
+					},
+					formAdd: {
+						name: '',
+						employeeId: '',
+						password: '',
+						phone: '',
+					},
+					rules: {
+						name: [{
+							required: true,
+							message: '请输入姓名',
+							trigger: 'blur'
+						}],
+						employeeId: [{
 							required: true,
 							message: '请输入工号',
 							trigger: 'blur'
 						},
-						{
-							validator: validateJobid,
+							{
+								validator: validateJobid,
+								trigger: 'blur'
+							}
+						],
+						password: [{
+							required: true,
+							message: '请输入密码',
 							trigger: 'blur'
-						}
-					],
-					password: [{
-						required: true,
-						message: '请输入密码',
-						trigger: 'blur'
-					}]
-				},
-				idx: -1,
-				id: -1
+						}]
+					},
+					idx: -1,
+					id: -1
 			};
 		},
 		created() {
@@ -185,18 +184,50 @@
 		},
 		methods: {
 			// 获取 easy-mock 的模拟数据
-			getData() {
+				getData() {
+					ajaxGet("/employee/allUser", this.query).then(res => {
+						console.log(res);
+						if (res && res.records) {
+							this.tableShow = true;
+							this.tableData = res.records;
+							this.pageTotal = res.total || 0;
+							this.pages = res.pages || 0;
+						} else {
+							this.tableShow = false;
+							this.tableData = [];
+						}
+					}).catch(error => {
+						console.error("获取员工列表失败:", error);
+						this.$message.error("获取数据失败，请稍后重试");
+					});
+				},
+      getDataByIdOrName() {
+        // 构造正确的参数格式
+        let searchParams = {
+          employeeId: this.query.jobId,
+          name: this.query.username
+        };
 
-				ajaxGet("/employee/allUser", this.query).then(res => {
-					console.log(res);
-					if (res.records) {
-						this.tableShow = true;
-						this.tableData = res.records;
-						this.pageTotal = res.total;
-						this.pages = res.pages;
-					}
-				});
-			},
+        ajaxPost("/employee/selectEmployeeByIdOrName", searchParams).then(res => {
+          if (res && res.records) {
+            this.tableShow = true;
+            this.tableData = res.records;
+            this.pageTotal = res.total || 0;
+            
+            if (this.tableData.length === 0) {
+              this.$message.info("未找到匹配的员工信息");
+            }
+          } else {
+            this.tableShow = false;
+            this.tableData = [];
+            this.pageTotal = 0;
+            this.$message.info("未找到匹配的员工信息");
+          }
+        }).catch(error => {
+          console.error("搜索请求失败:", error);
+          this.$message.error("搜索操作异常，请稍后重试");
+        });
+      },
 			insertUser() {
 				this.$refs.formAdd.validate((valid) => {
 					if (valid) {
@@ -235,15 +266,15 @@
 				this.addVisible = false;
 			},
 			handleAddUser() {
-				this.addVisible = true;
-			},
+					this.$refs.formAdd.resetFields();
+					this.addVisible = true;
+				},
 			// 触发搜索按钮
-			handleSearch() {
-				//this.$set(this.query, 'pageIndex', 1);
-				this.query.pageIndex = 1;
-				this.query.pageSize = 6;
-				this.getData();
-			},
+				handleSearch() {
+					this.query.pageIndex = 1;
+					this.query.pageSize = 6;
+					this.getDataByIdOrName();
+				},
 			//重置
 			handlerest() {
 				this.query.jobId = '';

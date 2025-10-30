@@ -8,6 +8,8 @@ import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -97,6 +99,19 @@ public class EmployeeController {
         } catch (Exception e) {
             // 可以添加日志记录
             return false;
+        }
+    }
+    
+    //根据工号或用户名搜索
+    @PostMapping("/selectEmployeeByIdOrName")
+    public Map<String, Object> selectEmployeeByIdOrName(@RequestBody Employee employee){
+        try {
+            return userService.selectEmployeeByIdOrName(employee);
+        } catch (Exception e) {
+            // 可以添加日志记录
+            Map<String, Object> result = new HashMap<>();
+            result.put("records", Collections.emptyList());
+            return result;
         }
     }
 }

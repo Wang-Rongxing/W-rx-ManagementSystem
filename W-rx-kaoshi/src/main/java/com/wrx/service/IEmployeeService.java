@@ -43,4 +43,6 @@ public interface IEmployeeService extends IService<Employee> {
     boolean resetUserPassword(Integer id, String employeeId);
     
     boolean insertUser(Employee employee);
+    
+    Map<String, Object> selectEmployeeByIdOrName(Employee employee);
 }

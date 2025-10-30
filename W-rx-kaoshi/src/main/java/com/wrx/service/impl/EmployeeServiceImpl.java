@@ -48,9 +48,9 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     public Page<Employee> selectByPage(Employee employee, int pageIndex, int pageSize) {
         LambdaQueryWrapper<Employee> wrapper = new LambdaQueryWrapper<Employee>();
         if (StringUtils.isNotBlank(employee.getEmployeeId()))
-            wrapper.eq(Employee::getEmployeeId, employee.getEmployeeId());
+            wrapper.like(Employee::getEmployeeId, employee.getEmployeeId());
         if (StringUtils.isNotBlank(employee.getName()))
-            wrapper.eq(Employee::getName, employee.getName());
+            wrapper.like(Employee::getName, employee.getName());
         Page<Employee> userPage = new Page<>(pageIndex,pageSize);
         return this.page(userPage, wrapper);
     }
@@ -216,5 +216,28 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         
         // 保存员工信息
         return this.save(employee);
+    }
+    
+    @Override
+    public Map<String, Object> selectEmployeeByIdOrName(Employee employee) {
+        LambdaQueryWrapper<Employee> wrapper = new LambdaQueryWrapper<>();
+        
+        // 根据工号或用户名进行搜索
+        if (StringUtils.isNotBlank(employee.getEmployeeId())) {
+            wrapper.like(Employee::getEmployeeId, employee.getEmployeeId());
+        }
+        if (StringUtils.isNotBlank(employee.getName())) {
+            wrapper.like(Employee::getName, employee.getName());
+        }
+        
+        // 查询数据
+        List<Employee> employeeList = this.list(wrapper);
+        
+        // 构造返回结果
+        Map<String, Object> result = new HashMap<>();
+        result.put("records", employeeList);
+        result.put("total", employeeList.size());
+        
+        return result;
     }
 }
