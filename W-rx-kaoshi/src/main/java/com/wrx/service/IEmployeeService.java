@@ -1,7 +1,7 @@
 package com.wrx.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wrx.dto.LoginEmployeeDto;
+import com.wrx.dto.LoginUserDto;
 import com.wrx.dto.EmployeeDto;
 import com.wrx.entity.Employee;
 import com.wrx.entity.Role;
@@ -37,5 +37,5 @@ public interface IEmployeeService extends IService<Employee> {
     //根据user_id查询role
     List<Role> selectRolesByUserId(Employee employee);
 
-    LoginEmployeeDto login(Employee employee);
+    LoginUserDto login(Employee employee);
 }

@@ -47,7 +47,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         //通过userId去数据库中查询user对应的角色
         //把角色信息封装到Authentication
         //把合法带有角色的Authentication带入本次Security框架，由Security框架进行鉴权
-        if (request.getServletPath().equals("/user/login")) {
+        if (request.getServletPath().equals("/employee/login")) {
             // 放行
             filterChain.doFilter(request, response);
             return;

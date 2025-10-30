@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wrx.dto.LoginEmployeeDto;
+import com.wrx.dto.LoginUserDto;
 import com.wrx.dto.EmployeeDto;
 import com.wrx.entity.Role;
 import com.wrx.entity.EmployeeRole;
@@ -144,7 +144,7 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     @Resource
     private AuthenticationManager authenticationManager;
     @Override
-    public LoginEmployeeDto login(Employee employee) {
+    public LoginUserDto login(Employee employee) {
         //判断获取的 UserDetails 信息中的密码是否和前端提交的密码一致，
         //security调用AuthenticationManager进行认证
         // 如果一致返回一个通过验证了的 UserDetails（LoginUser），如果密码不一致抛出异常
@@ -165,12 +165,12 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
             //loginUser.setPermissions(roles);
         }
         //TODO 把user及角色信息存入redis
-        LoginEmployeeDto loginEmployeeDto = new LoginEmployeeDto();
+        LoginUserDto loginUserDto = new LoginUserDto();
         //复制Employee，粘贴到LoginEmployeeDto
-        BeanUtil.copyProperties(loginEmployee.getEmployee(), loginEmployeeDto, true);
+        BeanUtil.copyProperties(loginEmployee.getEmployee(), loginUserDto, true);
         String token = JwtUtil.creatToken(loginEmployee.getEmployee().getId());
-        loginEmployeeDto.setToken(token);
-        loginEmployeeDto.setRoles(roles);
-        return loginEmployeeDto;
+        loginUserDto.setToken(token);
+        loginUserDto.setRoles(roles);
+        return loginUserDto;
     }
 }

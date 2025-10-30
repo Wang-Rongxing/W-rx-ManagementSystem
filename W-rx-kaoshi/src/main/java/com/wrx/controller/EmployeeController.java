@@ -1,6 +1,6 @@
 package com.wrx.controller;
 
-import com.wrx.dto.LoginEmployeeDto;
+import com.wrx.dto.LoginUserDto;
 import com.wrx.dto.EmployeeDto;
 import com.wrx.entity.Employee;
 import com.wrx.service.IEmployeeService;
@@ -30,30 +30,29 @@ public class EmployeeController {
     3、根据SysUserRole的role_id查询Role
      */
     //@PreAuthorize("hasAnyAuthority('ROLE_sys_admin','ROLE_edu_admin')")
-    @PreAuthorize("hasAuthority('ROLE_sys_admin')")
+    //@PreAuthorize("hasAuthority('ROLE_sys_admin')")
     @GetMapping("/userWithRoleByPage")
     public Map<String,Object> selectUserAndRole(Employee employee, int pageIndex, int pageSize){
         return userService.selectUserAndRole(employee,pageIndex,pageSize);
     }
-    @PreAuthorize("hasAnyRole('sys_admin','edu_admin')")//自动补全ROLE_
+    //@PreAuthorize("hasAnyRole('sys_admin','edu_admin')")//自动补全ROLE_
     @PostMapping("/updateUserRole")
     public boolean updateUserRole(@RequestBody EmployeeDto employeeDto){
         return userService.updateUserRole(employeeDto);
     }
 
-    @PreAuthorize("hasAuthority('ROLE_sys_admin')")
     @GetMapping("/allUser")
     public Map<String,Object> selectAllUser(Employee employee, int pageIndex, int pageSize){
         return userService.selectAllUser(employee,pageIndex,pageSize);
     }
-    @PreAuthorize("hasAuthority('ROLE_sys_admin')")
+
     @PostMapping("/initialPerminssion")
     public boolean updateUserinitialPerminssion(){
         return userService.updateUserinitialPerminssion();
     }
     //登录
     @PostMapping("/login")
-    public LoginEmployeeDto login(@RequestBody Employee employee){
+    public LoginUserDto login(@RequestBody Employee employee){
         return userService.login(employee);
     }
 }
