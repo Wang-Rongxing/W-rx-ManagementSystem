@@ -3,21 +3,12 @@
 		<div class="crumbs">
 			<el-breadcrumb separator="/">
 				<el-breadcrumb-item>
-					<i class="el-icon-lx-cascades"></i> 教师管理
+					<i class="el-icon-lx-cascades"></i> 酒店员工
 				</el-breadcrumb-item>
 			</el-breadcrumb>
 		</div>
 		<div class="container">
 			<div class="handle-box">
-				<template>
-					<el-popconfirm @confirm="delAllSelection" confirm-button-text='确定' cancel-button-text='取消'
-						icon="el-icon-info" icon-color="red" title="确定要删除吗?">
-						<el-button size="mini" slot="reference" type="primary" icon="el-icon-delete" class="bgred mr10">
-							批量删除</el-button>
-					</el-popconfirm>
-				</template>
-				<!-- <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
-			 </el-button> -->
 				<el-button size="mini" type="primary" icon="el-icon-circle-plus-outline" @click="handleAddUser">新增
 				</el-button>
 			</div>
@@ -32,12 +23,10 @@
 
 
 			<div v-show="tableShow">
-				<el-table :data="tableData" border class="table" ref="multipleTable"
-					header-cell-class-name="table-header" @selection-change="handleSelectionChange">
-					<el-table-column type="selection" width="55" align="center"></el-table-column>
+				<el-table :data="tableData" border class="table">
 					<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
-					<el-table-column prop="jobId" label="工号"></el-table-column>
-					<el-table-column prop="username" label="用户名"></el-table-column>
+          <el-table-column prop="name" label="用户名"></el-table-column>
+					<el-table-column prop="employeeId" label="工号"></el-table-column>
 					<!-- <el-table-column label="头像(查看大图)" align="center">
 						<template slot-scope="scope">
 							<el-image class="table-td-thumb" :src="scope.row.thumb"
@@ -54,12 +43,14 @@
 						</template>
 					</el-table-column> -->
 
-					<el-table-column prop="date" label="注册时间"></el-table-column>
+					<el-table-column prop="phone" label="电话"></el-table-column>
 					<el-table-column label="操作" width="180" align="center">
 						<template slot-scope="scope">
-							<el-button type="text" icon="el-icon-edit" class="mr10"
-								@click="resetUserPassword(scope.$index, scope.row)">重置密码
-							</el-button>
+							<el-popconfirm @confirm="resetUserPassword(scope.$index, scope.row)" confirm-button-text='确定'
+								cancel-button-text='取消' icon-color="#f56c6c" title="确定要重置密码吗?">
+								<el-button slot="reference" type="text" icon="el-icon-edit" class="mr10">重置密码
+								</el-button>
+							</el-popconfirm>
 							<template>
 								<el-popconfirm @confirm="handleDelete(scope.$index, scope.row)" confirm-button-text='确定'
 									cancel-button-text='取消' icon-color="red" title="确定要删除吗?">
@@ -141,8 +132,7 @@
 					pageSize: 6
 				},
 				tableData: [],
-				multipleSelection: [],
-				delList: [],
+
 				tableShow: false,
 				editVisible: false,
 				addVisible: false,
@@ -177,9 +167,9 @@
 				id: -1
 			};
 		},
-		// created() {
-		// 	this.getData();
-		// },
+		created() {
+			this.getData();
+		},
 		methods: {
 			// 获取 easy-mock 的模拟数据
 			getData() {
@@ -241,72 +231,56 @@
 			},
 			//重置
 			handlerest() {
-				this.tableData = [];
-				this.tableShow = false;
 				this.query.jobId = '';
 				this.query.username = '';
 				this.query.pageIndex = 1;
+				this.getData();
 			},
 			// 删除操作
 			handleDelete(index, row) {
-
-				console.log(row.id);
+				if (!row || !row.id) {
+					this.$message.error('无效的员工数据');
+					return;
+				}
+				console.log('删除员工ID:', row.id);
 				ajaxDelete('/employee', row.id).then(res => {
 					if (res) {
 						this.$message.success('删除成功');
-						if (this.tableData.length === 1 && this.query.pageIndex !== 1 && this.query
-							.pageIndex ===
-							this.pages)
+						// 处理最后一页只有一条数据的情况
+						if (this.tableData.length === 1 && this.query.pageIndex !== 1 && this.query.pageIndex === this.pages) {
 							this.query.pageIndex -= 1;
-						console.log(this.query.pageIndex);
+						}
+						// 重新获取数据更新列表
 						this.getData();
-						// this.tableData.splice(index, 1);
 					} else {
-						this.$message.error('删除失败');
+						this.$message.error('删除失败，请重试');
 					}
+				}).catch(error => {
+					console.error('删除操作失败:', error);
+					this.$message.error('删除操作异常，请稍后重试');
 				})
 			},
-			// 多选操作
-			handleSelectionChange(val) {
-				this.multipleSelection = val;
-			},
-			delAllSelection() {
-				const length = this.multipleSelection.length;
-				// this.tableData.index
-				if (length === 0) {
-					this.$message('没有选中项');
-				} else {
-					var ids = this.multipleSelection.map(item => item.id);
-					ajaxPost('/employee/deleteAll', ids).then(res => {
-						if (res) {
 
-							this.$message.success('删除成功');
-							console.log(this.tableData.length);
-							if (this.tableData.length === this.multipleSelection.length && this.query
-								.pageIndex !==
-								1 && this.query.pageIndex === this.pages)
-								this.query.pageIndex -= 1;
-
-							this.getData();
-							this.multipleSelection = [];
-						} else {
-							this.$message.error('删除失败');
-						}
-					})
-				}
-			},
 			// 重置密码
 			resetUserPassword(index, row) {
-				let date = {
+				if (!row || !row.id) {
+					this.$message.error('无效的员工数据');
+					return;
+				}
+				let data = {
 					"id": row.id,
-					"jobId": row.jobId
+					"employeeId": row.employeeId
 				};
-				ajaxGet("/employee/restUserPassword", date).then(res => {
+				console.log('重置密码请求:', data);
+				ajaxGet("/employee/resetUserPassword", data).then(res => {
 					if (res) {
 						this.$message.success(`密码重置成功`);
 					} else {
 						this.$message.error(`密码重置失败`);
 					}
+				}).catch(error => {
+					console.error('密码重置操作失败:', error);
+					this.$message.error('密码重置操作异常，请稍后重试');
 				})
 			},
 			// 保存编辑

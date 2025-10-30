@@ -38,4 +38,7 @@ public interface IEmployeeService extends IService<Employee> {
     List<Role> selectRolesByUserId(Employee employee);
 
     LoginUserDto login(Employee employee);
+    
+    // 重置密码
+    boolean resetUserPassword(Integer id, String employeeId);
 }

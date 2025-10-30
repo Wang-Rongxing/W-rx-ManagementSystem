@@ -21,6 +21,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -143,6 +144,8 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
 
     @Resource
     private AuthenticationManager authenticationManager;
+    @Resource
+    private PasswordEncoder passwordEncoder;
     @Override
     public LoginUserDto login(Employee employee) {
         //判断获取的 UserDetails 信息中的密码是否和前端提交的密码一致，
@@ -172,5 +175,24 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         loginUserDto.setToken(token);
         loginUserDto.setRoles(roles);
         return loginUserDto;
+    }
+    
+    @Override
+    public boolean resetUserPassword(Integer id, String employeeId) {
+        // 根据ID和工号查询员工，确保数据一致性
+        Employee employee = this.getById(id);
+        if (employee == null || !employee.getEmployeeId().equals(employeeId)) {
+            return false;
+        }
+        
+        // 设置默认密码为工号后6位，如果工号不足6位则使用整个工号
+        String defaultPassword = employeeId.length() > 6 ? employeeId.substring(employeeId.length() - 6) : employeeId;
+        
+        // 对默认密码进行加密
+        String encodedPassword = passwordEncoder.encode(defaultPassword);
+        
+        // 更新密码
+        employee.setPassword(encodedPassword);
+        return this.updateById(employee);
     }
 }

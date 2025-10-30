@@ -21,7 +21,7 @@ const state = {
 		},
 		{
 			path: '/ht/employee',
-			component: () => import( /* webpackChunkName: "table" */ '../components/page/teacher.vue'),
+			component: () => import( /* webpackChunkName: "table" */ '../components/page/employee.vue'),
 			meta: {
 				title: '酒店员工',
 				roles: ['ROLE_sys_admin','manager']

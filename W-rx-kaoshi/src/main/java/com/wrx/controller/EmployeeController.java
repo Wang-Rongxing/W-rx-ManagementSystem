@@ -55,4 +55,32 @@ public class EmployeeController {
     public LoginUserDto login(@RequestBody Employee employee){
         return userService.login(employee);
     }
+    
+    //删除员工
+    @DeleteMapping("/{id}")
+    public boolean deleteEmployee(@PathVariable Integer id){
+        if (id == null || id <= 0) {
+            return false;
+        }
+        try {
+            return userService.removeById(id);
+        } catch (Exception e) {
+            // 可以添加日志记录
+            return false;
+        }
+    }
+    
+    //重置密码
+    @GetMapping("/resetUserPassword")
+    public boolean resetUserPassword(Integer id, String employeeId){
+        if (id == null || id <= 0 || employeeId == null || employeeId.isEmpty()) {
+            return false;
+        }
+        try {
+            return userService.resetUserPassword(id, employeeId);
+        } catch (Exception e) {
+            // 可以添加日志记录
+            return false;
+        }
+    }
 }
