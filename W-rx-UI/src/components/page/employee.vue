@@ -266,7 +266,6 @@
 				this.addVisible = false;
 			},
 			handleAddUser() {
-					this.$refs.formAdd.resetFields();
 					this.addVisible = true;
 				},
 			// 触发搜索按钮
