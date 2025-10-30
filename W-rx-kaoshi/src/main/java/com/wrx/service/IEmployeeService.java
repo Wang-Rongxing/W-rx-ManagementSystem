@@ -41,4 +41,6 @@ public interface IEmployeeService extends IService<Employee> {
     
     // 重置密码
     boolean resetUserPassword(Integer id, String employeeId);
+    
+    boolean insertUser(Employee employee);
 }

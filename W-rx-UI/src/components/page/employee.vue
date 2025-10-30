@@ -86,14 +86,20 @@
 				<el-button size="mini" type="primary" @click="saveEdit">确 定</el-button>
 			</span>
 		</el-dialog>
-		<el-dialog title="新增监考老师" :visible.sync="addVisible" width="360px" :before-close="cancelInsertUser">
+		<el-dialog title="新增员工" :visible.sync="addVisible" width="360px" :before-close="cancelInsertUser">
 			<el-form ref="formAdd" :model="formAdd" status-icon :rules="rules" label-width="70px">
-				<el-form-item label="姓名:" prop="username">
-					<el-input size="mini" v-model="formAdd.username" class="handle-dialog-input mr10"></el-input>
+				<el-form-item label="姓名:" prop="name">
+					<el-input size="mini" v-model="formAdd.name" class="handle-dialog-input mr10"></el-input>
 				</el-form-item>
-				<el-form-item label="工号:" prop="jobId">
-					<el-input size="mini" v-model="formAdd.jobId" class="handle-dialog-input mr10"></el-input>
+				<el-form-item label="工号:" prop="employeeId">
+					<el-input size="mini" v-model="formAdd.employeeId" class="handle-dialog-input mr10"></el-input>
 				</el-form-item>
+        <el-form-item label="密码:" prop="password">
+          <el-input size="mini" v-model="formAdd.password" type="password" class="handle-dialog-input mr10"></el-input>
+        </el-form-item>
+        <el-form-item label="电话:" prop="phone">
+            <el-input size="mini" v-model="formAdd.phone" class="handle-dialog-input mr10"></el-input>
+        </el-form-item>
 			</el-form>
 			<span slot="footer" class="dialog-footer">
 				<el-button size="mini" @click="cancelInsertUser">取 消</el-button>
@@ -143,16 +149,18 @@
 					tempusername: '',
 				},
 				formAdd: {
-					username: '',
-					jobId: '',
+					name: '',
+          employeeId: '',
+          password: '',
+          phone: '',
 				},
 				rules: {
-					username: [{
+					name: [{
 						required: true,
 						message: '请输入姓名',
 						trigger: 'blur'
 					}],
-					jobId: [{
+					employeeId: [{
 							required: true,
 							message: '请输入工号',
 							trigger: 'blur'
@@ -161,7 +169,12 @@
 							validator: validateJobid,
 							trigger: 'blur'
 						}
-					]
+					],
+					password: [{
+						required: true,
+						message: '请输入密码',
+						trigger: 'blur'
+					}]
 				},
 				idx: -1,
 				id: -1
@@ -188,8 +201,10 @@
 				this.$refs.formAdd.validate((valid) => {
 					if (valid) {
 						let data = {
-							"username": this.formAdd.username,
-							"jobId": this.formAdd.jobId
+							"name": this.formAdd.name,
+							"employeeId": this.formAdd.employeeId,
+              "password": this.formAdd.password,
+              "phone": this.formAdd.phone
 						};
 						ajaxPost("/employee/insertUser", data).then(res => {
 							if (res) {

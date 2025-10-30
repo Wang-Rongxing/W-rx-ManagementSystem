@@ -35,6 +35,22 @@ public class EmployeeController {
     public Map<String,Object> selectUserAndRole(Employee employee, int pageIndex, int pageSize){
         return userService.selectUserAndRole(employee,pageIndex,pageSize);
     }
+    
+    //新增员工
+    @PostMapping("/insertUser")
+    public boolean insertUser(@RequestBody Employee employee){
+        if (employee == null || employee.getEmployeeId() == null || employee.getEmployeeId().isEmpty()
+                || employee.getName() == null || employee.getName().isEmpty()
+                || employee.getPassword() == null || employee.getPassword().isEmpty()) {
+            return false;
+        }
+        try {
+            return userService.insertUser(employee);
+        } catch (Exception e) {
+            // 可以添加日志记录
+            return false;
+        }
+    }
     //@PreAuthorize("hasAnyRole('sys_admin','edu_admin')")//自动补全ROLE_
     @PostMapping("/updateUserRole")
     public boolean updateUserRole(@RequestBody EmployeeDto employeeDto){

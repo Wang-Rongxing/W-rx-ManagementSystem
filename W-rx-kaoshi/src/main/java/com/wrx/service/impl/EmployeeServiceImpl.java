@@ -195,4 +195,26 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         employee.setPassword(encodedPassword);
         return this.updateById(employee);
     }
+    
+    @Override
+    public boolean insertUser(Employee employee) {
+        // 检查工号是否已存在
+        LambdaQueryWrapper<Employee> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Employee::getEmployeeId, employee.getEmployeeId());
+        Employee existingEmployee = this.getOne(wrapper);
+        if (existingEmployee != null) {
+            // 工号已存在，返回false
+            return false;
+        }
+        
+        // 对密码进行加密
+        String encodedPassword = passwordEncoder.encode(employee.getPassword());
+        employee.setPassword(encodedPassword);
+        
+        // 设置创建时间（如果有相应字段）
+        // employee.setCreateTime(new Date());
+        
+        // 保存员工信息
+        return this.save(employee);
+    }
 }
