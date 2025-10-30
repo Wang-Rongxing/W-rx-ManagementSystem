@@ -27,7 +27,7 @@
 
 		created() {
 			if (sessionStorage.getItem("user")) {
-				ajaxGet("/user/router").then(res => {
+				ajaxGet("/employee/router").then(res => {
 				let roles=res;
 				// let roles = JSON.parse(sessionStorage.getItem("roles"));
 				// console.log(roles);

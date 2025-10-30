@@ -20,7 +20,7 @@ import java.util.Map;
  */
 @RestController
 @CrossOrigin
-@RequestMapping("/user")
+@RequestMapping("/employee")
 public class EmployeeController {
     @Resource
     private IEmployeeService userService;

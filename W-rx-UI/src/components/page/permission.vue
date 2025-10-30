@@ -167,7 +167,7 @@
 			// 获取 easy-mock 的模拟数据
 			getData() {
 
-				ajaxGet("/user/userWithRoleByPage", this.query).then(res => {
+				ajaxGet("/employee/userWithRoleByPage", this.query).then(res => {
 					console.log(res);
 					if (res.records) {
 						this.tableShow = true;
@@ -198,7 +198,7 @@
 			handleDelete(index, row) {
 
 				console.log(row.id);
-				ajaxDelete('/user', row.id).then(res => {
+				ajaxDelete('/employee', row.id).then(res => {
 					if (res) {
 						this.$message.success('删除成功');
 						if (this.tableData.length === 1 && this.query.pageIndex !== 1 && this.query.pageIndex ===
@@ -217,7 +217,7 @@
 				this.multipleSelection = val;
 			},
 			handleInitialPerminssion() {
-				ajaxPost('/user/initialPerminssion').then(res => {
+				ajaxPost('/employee/initialPerminssion').then(res => {
 					if (res) {
 						this.$message.success({
 							message: '批量教师权限成功',
@@ -262,7 +262,7 @@
 			saveEdit() {
 				console.log(this.form);
 				
-				ajaxPost("/user/updateUserRole", this.form).then(res => {
+				ajaxPost("/employee/updateUserRole", this.form).then(res => {
 					if (res) {
 						this.editVisible = false;
 						this.$message.success(this.form.username+'老师的角色权限修改成功');

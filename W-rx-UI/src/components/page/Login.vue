@@ -17,7 +17,7 @@
 				</el-form-item>
         <el-select v-model="param.role" placeholder="请选择角色" class="role-select">
           <el-option label="管理员" value="admin" />
-          <el-option label="酒店" value="hotel" />
+          <el-option label="酒店员工" value="hotel" />
           <el-option label="客户" value="customer" />
         </el-select>
 				<div class="login-btn">
@@ -86,7 +86,7 @@
             // this.$router.push('/ht/dashboard');
 
 
-						ajaxPost('/user/login', this.param).then(res => {
+						ajaxPost('/employee/login', this.param).then(res => {
 								this.flag = res ? true : false;
 								if (this.flag) {
 
@@ -129,55 +129,55 @@
           if (valid) {
             this.loginLoading=true;
 
-            let res={
-              "username": "123",
-              "employeeId": "123",
-              "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2ODY0NTQyNTMsInVzZXJJZCI6MX0.lIKd5ySmvtO82dioCl6DLpG5m-FQXIAxCcTgciab-Es",
-              "roles": [
-                "ROLE_edu_admin"
-              ]
-            };
-            sessionStorage.setItem('user', JSON.stringify(res));
-            this.$store.commit('setRoles',res.roles);
-            // this.$store.commit('setFlag', true);
-            getDynamicMenu();
-            // console.log(res.roles);
-            this.$message.success('登录成功');
-            //console.log(localStorage.getItem("user"));
-            //localStorage.setItem("ms_username",res.data.username);
-            this.$router.push('/ht/dashboard');
+            // let res={
+            //   "username": "123",
+            //   "employeeId": "123",
+            //   "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2ODY0NTQyNTMsInVzZXJJZCI6MX0.lIKd5ySmvtO82dioCl6DLpG5m-FQXIAxCcTgciab-Es",
+            //   "roles": [
+            //     "ROLE_edu_admin"
+            //   ]
+            // };
+            // sessionStorage.setItem('user', JSON.stringify(res));
+            // this.$store.commit('setRoles',res.roles);
+            // // this.$store.commit('setFlag', true);
+            // getDynamicMenu();
+            // // console.log(res.roles);
+            // this.$message.success('登录成功');
+            // //console.log(localStorage.getItem("user"));
+            // //localStorage.setItem("ms_username",res.data.username);
+            // this.$router.push('/ht/dashboard');
 
 
-            // ajaxPost('/user/login', this.param).then(res => {
-            // 		this.flag = res ? true : false;
-            // 		if (this.flag) {
-            //
-            // 			//localStorage.setItem('user', JSON.stringify(res));
-            // 			if(res.roles!=null&&res.roles.length>0){
-            //
-            // 			sessionStorage.setItem('user', JSON.stringify(res));
-            // 			this.$store.commit('setRoles',res.roles);
-            // 			// this.$store.commit('setFlag', true);
-            // 			getDynamicMenu();
-            // 			// console.log(res.roles);
-            // 			this.$message.success('登录成功');
-            // 			//console.log(localStorage.getItem("user"));
-            // 			//localStorage.setItem("ms_username",res.data.username);
-            // 			this.$router.push('/ht/dashboard');
-            // 			}else{
-            // 				this.$message.error({message:'您没有权限访问系统',center: true});
-            // 			}
-            //
-            // 		} else {
-            // 			this.$message.error({message:'工号或密码错误',center: true});
-            //
-            // 			return false;
-            // 		}
-            // 	})
-            // 	.catch(error => {
-            // 		this.loginLoading=false;
-            //
-            // 	});
+            ajaxPost('/employee/login', this.param).then(res => {
+            		this.flag = res ? true : false;
+            		if (this.flag) {
+
+            			//localStorage.setItem('user', JSON.stringify(res));
+            			if(res.roles!=null&&res.roles.length>0){
+
+            			sessionStorage.setItem('user', JSON.stringify(res));
+            			this.$store.commit('setRoles',res.roles);
+            			// this.$store.commit('setFlag', true);
+            			getDynamicMenu();
+            			// console.log(res.roles);
+            			this.$message.success('登录成功');
+            			//console.log(localStorage.getItem("user"));
+            			//localStorage.setItem("ms_username",res.data.username);
+            			this.$router.push('/ht/dashboard');
+            			}else{
+            				this.$message.error({message:'您没有权限访问系统',center: true});
+            			}
+
+            		} else {
+            			this.$message.error({message:'工号或密码错误',center: true});
+
+            			return false;
+            		}
+            	})
+            	.catch(error => {
+            		this.loginLoading=false;
+
+            	});
           } else {
             //this.$message.error('请输入账号和密码');
             console.log('error submit!!');

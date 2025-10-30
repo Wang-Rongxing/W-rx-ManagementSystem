@@ -73,7 +73,7 @@ export default {
           this.loginLoading=true;
 
 
-          ajaxPost('/user/login', this.param).then(res => {
+          ajaxPost('/employee/login', this.param).then(res => {
             this.flag = res ? true : false;
             if (this.flag) {
 

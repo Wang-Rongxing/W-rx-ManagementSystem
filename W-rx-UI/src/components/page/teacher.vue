@@ -184,7 +184,7 @@
 			// 获取 easy-mock 的模拟数据
 			getData() {
 
-				ajaxGet("/user/allUser", this.query).then(res => {
+				ajaxGet("/employee/allUser", this.query).then(res => {
 					console.log(res);
 					if (res.records) {
 						this.tableShow = true;
@@ -201,7 +201,7 @@
 							"username": this.formAdd.username,
 							"jobId": this.formAdd.jobId
 						};
-						ajaxPost("/user/insertUser", data).then(res => {
+						ajaxPost("/employee/insertUser", data).then(res => {
 							if (res) {
 								this.$message.success({
 									message: '添加成功',
@@ -251,7 +251,7 @@
 			handleDelete(index, row) {
 
 				console.log(row.id);
-				ajaxDelete('/user', row.id).then(res => {
+				ajaxDelete('/employee', row.id).then(res => {
 					if (res) {
 						this.$message.success('删除成功');
 						if (this.tableData.length === 1 && this.query.pageIndex !== 1 && this.query
@@ -277,7 +277,7 @@
 					this.$message('没有选中项');
 				} else {
 					var ids = this.multipleSelection.map(item => item.id);
-					ajaxPost('/user/deleteAll', ids).then(res => {
+					ajaxPost('/employee/deleteAll', ids).then(res => {
 						if (res) {
 
 							this.$message.success('删除成功');
@@ -301,7 +301,7 @@
 					"id": row.id,
 					"jobId": row.jobId
 				};
-				ajaxGet("/user/restUserPassword", date).then(res => {
+				ajaxGet("/employee/restUserPassword", date).then(res => {
 					if (res) {
 						this.$message.success(`密码重置成功`);
 					} else {
@@ -317,7 +317,7 @@
 					"username": this.form.username,
 					"password": this.form.password
 				};
-				ajaxPost("/user/updateUser", data).then(res => {
+				ajaxPost("/employee/updateUser", data).then(res => {
 					if (res) {
 						this.editVisible = false;
 						this.$message.success(`修改第 ${this.idx + 1} 行成功`);

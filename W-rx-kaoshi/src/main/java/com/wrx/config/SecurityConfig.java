@@ -46,7 +46,7 @@ public class SecurityConfig {
             // 下面开始设置权限
             .authorizeRequests(authorize -> authorize
                     // 请求放开
-                    .requestMatchers("/user/login").permitAll()
+                    .requestMatchers("/employee/login").permitAll()
                     // .antMatchers("/**").permitAll()
                     // 其他地址的访问均需验证权限
                     .anyRequest().authenticated())

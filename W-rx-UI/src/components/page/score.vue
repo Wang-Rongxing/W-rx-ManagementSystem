@@ -213,7 +213,7 @@
 			handleDelete(index, row) {
 
 				console.log(row.id);
-				ajaxDelete('/user', row.id).then(res => {
+				ajaxDelete('/employee', row.id).then(res => {
 					if (res) {
 						this.$message.success('删除成功');
 						if (this.tableData.length === 1 && this.query.pageIndex != 1 && this.query.pageIndex ==
@@ -238,7 +238,7 @@
 					this.$message('没有选中项');
 				} else {
 					var ids = this.multipleSelection.map(item => item.id);
-					ajaxPost('/user/deleteAll', ids).then(res => {
+					ajaxPost('/employee/deleteAll', ids).then(res => {
 						if (res) {
 
 							this.$message.success('删除成功');
@@ -287,7 +287,7 @@
 					"username": this.form.username,
 					"password": this.form.password
 				};
-				ajaxPost("/user/updateUser", data).then(res => {
+				ajaxPost("/employee/updateUser", data).then(res => {
 					if (res) {
 						this.editVisible = false;
 						this.$message.success(`修改第 ${this.idx + 1} 行成功`);
