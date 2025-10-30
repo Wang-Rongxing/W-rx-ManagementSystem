@@ -9,8 +9,8 @@ import java.util.List;
  */
 @Data
 public class LoginEmployeeDto {
-    private String username;
-    private String jobId;
+    private String name;
+    private String employeeId;
     private String token;
     private List<String> roles;
 }

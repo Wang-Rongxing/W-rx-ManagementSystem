@@ -7,14 +7,14 @@
           <i class="el-icon-s-custom"></i>
           账号
         </template>
-        {{this.employee.username}}
+        {{this.employee.name}}
       </el-descriptions-item>
       <el-descriptions-item>
         <template slot="label">
           <i class="el-icon-mobile-phone"></i>
-          注册时间
+          角色
         </template>
-        {{this.employee.phone}}
+        {{roles}}
       </el-descriptions-item>
 
     </el-descriptions>
@@ -29,8 +29,30 @@ export default {
   components: {DateUtils},
   data(){
    return{
+     role: '',
      employee: JSON.parse(sessionStorage.getItem('user'))
    };
+  },
+  computed: {
+    roles() {
+      const roles = this.employee.roles;
+      // 检查roles是否为数组且包含元素
+      if (Array.isArray(roles) && roles.length > 0) {
+        // 遍历roles数组查找匹配的角色
+        for (let role of roles) {
+          if (role.includes('manager') || role === 'manager') {
+            return '经理';
+          }
+        }
+        // 如果没有找到经理角色，返回第一个角色的中文名称
+        const firstRole = roles[0];
+        if (firstRole.includes('admin')) {
+          return '管理员';
+        }
+        return '普通用户';
+      }
+      return '未知角色';
+    }
   },
 };
 </script>

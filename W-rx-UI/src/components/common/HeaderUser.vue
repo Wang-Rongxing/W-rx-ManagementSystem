@@ -124,7 +124,7 @@
 		},
 		computed: {
 			username() {
-				let username = this.employee.username;
+				let username = this.employee.name;
 				return username ? username : this.name;
 			}
 		},

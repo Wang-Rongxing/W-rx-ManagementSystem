@@ -166,6 +166,7 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         }
         //TODO 把user及角色信息存入redis
         LoginEmployeeDto loginEmployeeDto = new LoginEmployeeDto();
+        //复制Employee，粘贴到LoginEmployeeDto
         BeanUtil.copyProperties(loginEmployee.getEmployee(), loginEmployeeDto, true);
         String token = JwtUtil.creatToken(loginEmployee.getEmployee().getId());
         loginEmployeeDto.setToken(token);
