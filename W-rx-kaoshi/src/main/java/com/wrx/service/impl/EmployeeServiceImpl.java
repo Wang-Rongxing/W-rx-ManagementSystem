@@ -116,17 +116,6 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         map.put("pages",userPage.getPages());
         return map;
     }
-    //TODO 权限管理-批量授权
-    @Override
-    public boolean updateUserinitialPerminssion() {
-        LambdaQueryWrapper<Employee> Userid = new LambdaQueryWrapper<>();
-        Userid.select(Employee::getId);
-        LambdaQueryWrapper<EmployeeRole> sysUserid = new LambdaQueryWrapper<>();
-        sysUserid.select(EmployeeRole::getEmployeeId);
-
-        return false;
-    }
-
     //根据user查询role
     @Override
     public List<Role> selectRolesByUserId(Employee employee) {
@@ -233,10 +222,20 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         // 查询数据
         List<Employee> employeeList = this.list(wrapper);
         
+        // 为每个员工查询角色信息
+        List<Map<String, Object>> recordsWithRoles = new ArrayList<>();
+        for (Employee emp : employeeList) {
+            Map<String, Object> employeeWithRoles = BeanUtil.beanToMap(emp, new HashMap<>(), false, true);
+            // 查询该员工的角色列表
+            List<Role> roleList = this.selectRolesByUserId(emp);
+            employeeWithRoles.put("roleList", roleList);
+            recordsWithRoles.add(employeeWithRoles);
+        }
+        
         // 构造返回结果
         Map<String, Object> result = new HashMap<>();
-        result.put("records", employeeList);
-        result.put("total", employeeList.size());
+        result.put("records", recordsWithRoles);
+        result.put("total", recordsWithRoles.size());
         
         return result;
     }

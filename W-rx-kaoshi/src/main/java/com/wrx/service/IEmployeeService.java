@@ -32,17 +32,15 @@ public interface IEmployeeService extends IService<Employee> {
 
     Map<String, Object> selectAllUser(Employee employee, int pageIndex, int pageSize);
 
-    boolean updateUserinitialPerminssion();
-
     //根据user_id查询role
     List<Role> selectRolesByUserId(Employee employee);
-
+    //登录
     LoginUserDto login(Employee employee);
     
     // 重置密码
     boolean resetUserPassword(Integer id, String employeeId);
-    
+    //新增员工
     boolean insertUser(Employee employee);
-    
+    //根据员工id或姓名查询员工信息
     Map<String, Object> selectEmployeeByIdOrName(Employee employee);
 }

@@ -63,11 +63,6 @@ public class EmployeeController {
     public Map<String,Object> selectAllUser(Employee employee, int pageIndex, int pageSize){
         return userService.selectAllUser(employee,pageIndex,pageSize);
     }
-
-    @PostMapping("/initialPerminssion")
-    public boolean updateUserinitialPerminssion(){
-        return userService.updateUserinitialPerminssion();
-    }
     //登录
     @PostMapping("/login")
     public LoginUserDto login(@RequestBody Employee employee){

@@ -9,17 +9,10 @@
 		</div>
 		<div class="container">
 			<div class="handle-box">
-				<template>
-					<el-popconfirm @confirm="handleInitialPerminssion" confirm-button-text='确定' cancel-button-text='取消'
-						icon="el-icon-info" icon-color="red" title="所有没有权限的用户会被授权为监考老师">
-						<el-button size="mini" slot="reference" type="primary" icon="el-icon-s-tools" class="mr10">批量授权
-						</el-button>
-					</el-popconfirm>
-				</template>
 				<!-- <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
 				</el-button> -->
-				<el-input size="mini" v-model="query.jobId" placeholder="工号" class="handle-select mr10"></el-input>
-				<el-input size="mini" v-model="query.username" placeholder="用户名" class="handle-input mr10"></el-input>
+				<el-input size="mini" v-model="query.employeeId" placeholder="工号" class="handle-select mr10"></el-input>
+				<el-input size="mini" v-model="query.name" placeholder="用户名" class="handle-input mr10"></el-input>
 				<el-button size="mini" type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
 				<el-button size="mini" type="primary" class="yel" @click="handlerest">重置</el-button>
 			</div>
@@ -28,8 +21,8 @@
 					header-cell-class-name="table-header" @selection-change="handleSelectionChange">
 					<el-table-column type="selection" width="55" align="center"></el-table-column>
 					<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
-					<el-table-column prop="jobId" label="工号" width="155"></el-table-column>
-					<el-table-column prop="username" label="用户名" width="260"></el-table-column>
+          <el-table-column prop="name" label="用户名" width="260"></el-table-column>
+					<el-table-column prop="employeeId" label="工号" width="155"></el-table-column>
 					<!-- <el-table-column label="头像(查看大图)" align="center">
 						<template slot-scope="scope">
 							<el-image class="table-td-thumb" :src="scope.row.thumb"
@@ -48,15 +41,15 @@
 
 					<el-table-column label="权限">
 						<template slot-scope="scope">
-							<li v-for="site in scope.row.sysRoleList" class="li">
-								{{ site.name }}
+							<li v-for="role in scope.row.roleList" class="li">
+								{{ role.name }}
 							</li>
 						</template>
 
 					</el-table-column>
 					<el-table-column label="权限管理" width="180" align="center">
 						<template slot-scope="scope">
-							<el-button type="text" icon="el-icon-menu" class="mr10" :disabled="scope.row.username=='admin'"
+							<el-button type="text" icon="el-icon-menu" class="mr10" :disabled="scope.row.name=='admin'"
 								@click="setRoles(scope.$index, scope.row)">修改权限
 							</el-button>
 							<!-- <template>
@@ -83,10 +76,10 @@
 		<el-dialog size="mini" title="修改权限" :visible.sync="editVisible" width="30%" :before-close="cancelEdit">
 			<el-form label-width="70px">
 				<el-form-item size="mini" label="姓名:">
-					{{form.username}}
+					{{form.name}}
 				</el-form-item>
 				<el-form-item size="mini" label="工号:">
-					{{form.jobId}}
+					{{form.employeeId}}
 				</el-form-item>
 				<el-form-item size="mini" label="权限:">
 <!--					 :default-checked-keys="roleCheck"   v-model="form.sysRoleList"-->
@@ -117,10 +110,10 @@
 	export default {
 		name: 'basetable',
 		data() {
-			return {
-				query: {
-					jobId: '',
-					username: '',
+				return {
+					query: {
+						employeeId: '',
+						name: '',
 					pageIndex: 1,
 					pageSize: 6
 				},
@@ -140,15 +133,15 @@
 					name: '选择权限',
 					children: [{
 							id: 1,
-							name: '监考老师'
+							name: '经理'
 						},
 						{
 							id: 2,
-							name: '教务老师'
+							name: '前台'
 						},
 						{
 							id: 3,
-							name: '系统管理员'
+							name: '客房管理员'
 						}
 					]
 				}],
@@ -160,9 +153,9 @@
 				id: -1
 			};
 		},
-		// created() {
-		// 	this.getData();
-		// },
+		created() {
+			this.getData();
+		},
 		methods: {
 			// 获取 easy-mock 的模拟数据
 			getData() {
@@ -177,6 +170,39 @@
 					}
 				});
 			},
+      getDataRoleByIdOrName() {
+        // 构造正确的参数格式
+        let searchParams = {
+          employeeId: this.query.employeeId,
+          name: this.query.name
+        };
+
+        ajaxPost("/employee/selectEmployeeByIdOrName", searchParams).then(res => {
+          if (res && res.records) {
+            // 确保每个员工都有roleList字段
+            const recordsWithRoleList = res.records.map(employee => ({
+              ...employee,
+              roleList: employee.roleList || []
+            }));
+            
+            this.tableShow = true;
+            this.tableData = recordsWithRoleList;
+            this.pageTotal = res.total || 0;
+
+            if (this.tableData.length === 0) {
+              this.$message.info("未找到匹配的员工信息");
+            }
+          } else {
+            this.tableShow = false;
+            this.tableData = [];
+            this.pageTotal = 0;
+            this.$message.info("未找到匹配的员工信息");
+          }
+        }).catch(error => {
+          console.error("搜索请求失败:", error);
+          this.$message.error("搜索操作异常，请稍后重试");
+        });
+      },
 
 
 			// 触发搜索按钮
@@ -184,15 +210,16 @@
 				//this.$set(this.query, 'pageIndex', 1);
 				this.query.pageIndex = 1;
 				this.query.pageSize = 6;
-				this.getData();
+				this.getDataRoleByIdOrName();
 			},
 			//重置
 			handlerest() {
 				this.tableData = [];
 				this.tableShow = false;
-				this.query.jobId = '';
-				this.query.username = '';
+				this.query.employeeId = '';
+				this.query.name = '';
 				this.query.pageIndex = 1;
+        this.getData();
 			},
 			// 删除操作
 			handleDelete(index, row) {
@@ -216,47 +243,31 @@
 			handleSelectionChange(val) {
 				this.multipleSelection = val;
 			},
-			handleInitialPerminssion() {
-				ajaxPost('/employee/initialPerminssion').then(res => {
-					if (res) {
-						this.$message.success({
-							message: '批量教师权限成功',
-							center: true
-						});
-					} else {
-						this.$message.error({
-							message: '批量授权失败',
-							center: true
-						});
-					}
-				})
 
-
-			},
 			// 修改角色权限
 			setRoles(index, row) {
 				this.form = row;
-				this.form.tempRoleList = row.sysRoleList;
+				this.form.tempRoleList = row.roleList;
 				this.editVisible = true;
 				// let roleChecked = [];
-				// row.sysRoleList.forEach(role => {
+				// row.roleList.forEach(role => {
 				// 	if (role.name === '监考老师') {
-				// 		roleChecked.push(1);
+					// 		roleChecked.push(1);
 				// 	} else if (role.name === '教务老师') {
-				// 		roleChecked.push(2);
+					// 		roleChecked.push(2);
 				// 	} else {
-				// 		roleChecked.push(3);
-				// 	}
+					// 		roleChecked.push(3);
+					// 	}
 				// });
 				//设置选中
 				this.$nextTick(() => {
-					this.$refs.tree.setCheckedNodes(row.sysRoleList);
+					this.$refs.tree.setCheckedNodes(row.roleList);
 					//this.$refs.tree.setCheckedKeys(roleChecked);
 				});
 			},
 			//tree中checkBox被选中事件处理
 			handleTreeChecked() {
-				this.form.sysRoleList = this.$refs.tree.getCheckedNodes(true, true);
+				this.form.roleList = this.$refs.tree.getCheckedNodes(true, true);
 			},
 			// 提交修改角色权限
 			saveEdit() {
@@ -265,23 +276,23 @@
 				ajaxPost("/employee/updateUserRole", this.form).then(res => {
 					if (res) {
 						this.editVisible = false;
-						this.$message.success(this.form.username+'老师的角色权限修改成功');
+						this.$message.success(this.form.name+'的角色权限修改成功');
 					} else {
 						this.editVisible = false;
-						this.form.sysRoleList = this.form.tempRoleList;
-						this.$message.error(this.form.username+'老师的角色权限修改失败');
+						this.form.roleList = this.form.tempRoleList;
+						this.$message.error(this.form.name+'的角色权限修改失败');
 					}
 					//this.$set(this.tableData, this.idx, this.form);
 				})
 				// .catch(error => {
 				// 	this.editVisible = false;
-				// 	this.form.sysRoleList = this.form.tempRoleList;
+				// 	this.form.roleList = this.form.tempRoleList;
 				// 	this.$message.error(`服务器异常`);
 				// })
 			},
 			//取消权限设置
 			cancelEdit() {
-				this.form.sysRoleList = this.form.tempRoleList;
+				this.form.roleList = this.form.tempRoleList;
 				this.editVisible = false;
 			},
 			//关闭对话框
