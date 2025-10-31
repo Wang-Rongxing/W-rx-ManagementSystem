@@ -1,6 +1,5 @@
 package com.wrx.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wrx.dto.LoginUserDto;
 import com.wrx.entity.SysUser;
