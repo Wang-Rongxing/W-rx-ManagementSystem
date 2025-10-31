@@ -6,6 +6,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wrx.entity.Customer;
 import com.wrx.entity.Employee;
 import com.wrx.entity.SysUser;
 
@@ -45,6 +46,19 @@ public class JwtUtil {
         ObjectMapper objectMapper = new ObjectMapper();//Jackson 转换 json 类
         String userStr = null;
         try { userStr = objectMapper.writeValueAsString(sysUser);//user 转换为 json 格式
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }return JWT.create()
+                .withClaim("user", userStr)
+                .withClaim("roles",roles)
+                .withExpiresAt(DateUtil.offsetMinute(new Date(), 60))//设置失效时间1小时后
+                .sign(Algorithm.HMAC256(SING));//签名
+    }
+    public static String creatToken(Customer customer, List<String> roles) {//创建 token
+//
+        ObjectMapper objectMapper = new ObjectMapper();//Jackson 转换 json 类
+        String userStr = null;
+        try { userStr = objectMapper.writeValueAsString(customer);//user 转换为 json 格式
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }return JWT.create()

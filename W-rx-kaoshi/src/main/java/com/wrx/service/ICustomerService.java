@@ -1,7 +1,9 @@
 package com.wrx.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.wrx.dto.LoginUserDto;
 import com.wrx.entity.Customer;
+import com.wrx.entity.SysUser;
 
 /**
  * <p>
@@ -12,5 +14,7 @@ import com.wrx.entity.Customer;
  * @since 2025-10-28
  */
 public interface ICustomerService extends IService<Customer> {
+    //登录
+    LoginUserDto login(Customer customer);
 
 }
