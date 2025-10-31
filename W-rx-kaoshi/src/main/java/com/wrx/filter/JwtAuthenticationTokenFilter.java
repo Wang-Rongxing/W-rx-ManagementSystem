@@ -10,6 +10,7 @@ import com.wrx.entity.Employee;
 import com.wrx.entity.Role;
 import com.wrx.entity.SysUser;
 import com.wrx.exception.NoRolesException;
+import com.wrx.service.ICustomerService;
 import com.wrx.service.IEmployeeService;
 import com.wrx.service.IRoleService;
 import com.wrx.service.ISysUserService;
@@ -50,6 +51,10 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Resource
     @Lazy(value = true)//避免循环调用，延迟加载，用到懒加载
     private IRoleService iRoleService;
+    
+    @Resource
+    @Lazy(value = true)//避免循环调用，延迟加载，用到懒加载
+    private ICustomerService iCustomerService;
     //由 handlerExceptionResolver 引入全局异常
     @Resource
     private HandlerExceptionResolver handlerExceptionResolver;
@@ -78,63 +83,63 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             Long userId = claim.asLong();
             //通过userId去数据库中查询user对应的角色
             //TODO 从redis（内存）中获取user对应的角色，高频访问的数据存入redis
-            Employee employee = new Employee();
-            SysUser sysUser = new SysUser();
-            Customer customer = new Customer();
+            
+            // 尝试从Employee表获取用户信息
+            Employee employee = iEmployeeService.getById(Math.toIntExact(userId));
+            if (employee != null) {
+                List<Role> roleList = iEmployeeService.selectRolesByUserId(employee);
+                //从角色链表中获取Role_key形成List<String>:{"ROLE_teacher","ROLE_edu_admin"}
+                List<String> roles = roleList.stream().map(role -> role.getRoleKey()).collect(Collectors.toList());
 
-            employee.setId(Math.toIntExact(userId));
-            sysUser.setId(Math.toIntExact(userId));
-            customer.setId(Math.toIntExact(userId));
+                LoginEmployee loginEmployee = new LoginEmployee();
+                loginEmployee.setEmployee(employee);
+                loginEmployee.setPermissions(roles);
 
-            List<Role> roleList = iEmployeeService.selectRolesByUserId(employee);
-            //从角链表中获取Role_key形成List<String>:{"ROLE_teacher","ROLE_edu_admin"}
-            List<String> roles = roleList.stream().map(role -> role.getRoleKey()).collect(Collectors.toList());
+                // 把 usernamePasswordAuthenticationToken 设置到 security 框架
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        loginEmployee, null, loginEmployee.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-            LoginEmployee loginEmployee = new LoginEmployee();
-            loginEmployee.setEmployee(employee);
-            loginEmployee.setPermissions(roles);
+                //token 快要过期的处理
+                handleTokenRenewal(response, decode, employee, roles);
+            } else {
+                // 尝试从SysUser表获取用户信息
+                SysUser sysUser = iSysUserService.getById(Math.toIntExact(userId));
+                if (sysUser != null) {
+                    List<String> sysuserroles = new ArrayList<>();
+                    sysuserroles.add(sysUser.getRole());
+                    LoginSysUSer loginSysUSer = new LoginSysUSer();
+                    loginSysUSer.setSysUser(sysUser);
+                    loginSysUSer.setPermissions(sysuserroles);
 
-            List<String> sysuserroles = new ArrayList<>();
-            sysuserroles.add(sysUser.getRole());
-            LoginSysUSer loginSysUSer = new LoginSysUSer();
-            loginSysUSer.setSysUser(sysUser);
-            loginSysUSer.setPermissions(sysuserroles);
+                    // 把 usernamePasswordAuthenticationToken 设置到 security 框架
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                            loginSysUSer, null, loginSysUSer.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-            List<String> customerroles = new ArrayList<>();
-            customerroles.add("Customer");
-            LoginCustomer loginCustomer = new LoginCustomer();
-            loginCustomer.setCustomer(customer);
-            loginCustomer.setPermissions(customerroles);
+                    //token 快要过期的处理
+                    handleTokenRenewal(response, decode, sysUser, sysuserroles);
+                } else {
+                    // 尝试从Customer表获取用户信息
+                    Customer customer = iCustomerService.getById(Math.toIntExact(userId));
+                    if (customer == null) {
+                        // 如果所有表都找不到用户，抛出异常
+                        throw new NoRolesException("用户不存在");
+                    }
+                    List<String> customerroles = new ArrayList<>();
+                    customerroles.add("Customer");
+                    LoginCustomer loginCustomer = new LoginCustomer();
+                    loginCustomer.setCustomer(customer);
+                    loginCustomer.setPermissions(customerroles);
 
+                    // 把 usernamePasswordAuthenticationToken 设置到 security 框架
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                            loginCustomer, null, loginCustomer.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-            // 把 usernamePasswordAuthenticationToken 设置到 security 框架，由 security 框架对后面的资源方法进行鉴权
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                    loginEmployee, null, loginEmployee.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken1 = new UsernamePasswordAuthenticationToken(
-                    loginSysUSer, null, loginSysUSer.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken1);
-
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken2 = new UsernamePasswordAuthenticationToken(
-                    loginCustomer, null, loginCustomer.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken2);
-            //token 快要过期的处理
-            Claim exp = decode.getClaim("exp");
-            Date date = exp.asDate();
-            // long between = DateUtil.betweenMs(date, new Date());
-            long between = date.getTime() - new Date().getTime();
-            long time = Convert.convertTime(between, TimeUnit.MILLISECONDS, TimeUnit.MINUTES);
-            // 剩余时间低于 30 分钟，如果还在访问就续签（重新派发一个新的 token,继续获得有效期），需要前端配合检查响应头中是否
-            //有 token，有 token 则重新存入 SessionStorage
-            if (time <= 30) {
-                String token2 = JwtUtil.creatToken(employee,roles);
-                String token3 = JwtUtil.creatToken(sysUser,sysuserroles);
-                String token4 = JwtUtil.creatToken(customer,customerroles);
-                response.setHeader("token", token2);
-                response.setHeader("token", token3);
-                response.setHeader("token", token4);
-                response.setHeader("Access-Control-Expose-Headers", "token");// 跨域
+                    //token 快要过期的处理
+                    handleTokenRenewal(response, decode, customer, customerroles);
+                }
             }
             // 放行
             filterChain.doFilter(request, response);
@@ -142,6 +147,36 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         catch (Exception e) {
             e.printStackTrace();
             handlerExceptionResolver.resolveException(request, response, null, e);
+        }
+    }
+    
+    /**
+     * 处理token续签逻辑
+     */
+    private void handleTokenRenewal(HttpServletResponse response, DecodedJWT decode, Object user, List<String> roles) {
+        //token 快要过期的处理
+        Claim exp = decode.getClaim("exp");
+        Date date = exp.asDate();
+        // long between = DateUtil.betweenMs(date, new Date());
+        long between = date.getTime() - new Date().getTime();
+        long time = Convert.convertTime(between, TimeUnit.MILLISECONDS, TimeUnit.MINUTES);
+        // 剩余时间低于 30 分钟，如果还在访问就续签（重新派发一个新的 token,继续获得有效期），需要前端配合检查响应头中是否
+        //有 token，有 token 则重新存入 SessionStorage
+        if (time <= 30) {
+            String newToken = null;
+            // 根据用户类型调用相应的JwtUtil方法
+            if (user instanceof Employee) {
+                newToken = JwtUtil.creatToken((Employee) user, roles);
+            } else if (user instanceof SysUser) {
+                newToken = JwtUtil.creatToken((SysUser) user, roles);
+            } else if (user instanceof Customer) {
+                newToken = JwtUtil.creatToken((Customer) user, roles);
+            }
+            
+            if (newToken != null) {
+                response.setHeader("token", newToken);
+                response.setHeader("Access-Control-Expose-Headers", "token");// 跨域
+            }
         }
     }
 }

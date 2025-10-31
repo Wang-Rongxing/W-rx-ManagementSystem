@@ -1,6 +1,7 @@
 package com.wrx.config;
 
 import com.wrx.filter.JwtAuthenticationTokenFilter;
+import com.wrx.service.impl.UnifiedUserDetailsServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     @Resource
     private JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+    
+    @Resource
+    private UnifiedUserDetailsServiceImpl unifiedUserDetailsService;
     //密码明文加密方式配置
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -45,12 +49,12 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
             // 下面开始设置权限
             .authorizeRequests(authorize -> authorize
-                    // 两个登录接口都放开权限
+                    // 三个登录接口都放开权限
                     .requestMatchers("/employee/login", "/sysuser/login", "/customer/login").permitAll()
                     // 其他地址的访问均需验证权限
                     .anyRequest().authenticated())
-                    // 认证用户时用户信息加载配置，注入 springAuthUserService
-                    // .userDetailsService(xxxAuthUserService)
+                    // 明确指定使用统一的用户详情服务
+                    .userDetailsService(unifiedUserDetailsService)
             .build();
     }
 }
