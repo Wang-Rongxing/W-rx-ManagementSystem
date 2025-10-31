@@ -7,10 +7,13 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.wrx.entity.Employee;
 import com.wrx.entity.Role;
+import com.wrx.entity.SysUser;
 import com.wrx.exception.NoRolesException;
 import com.wrx.service.IEmployeeService;
+import com.wrx.service.ISysUserService;
 import com.wrx.util.JwtUtil;
 import com.wrx.util.LoginEmployee;
+import com.wrx.util.LoginSysUSer;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,6 +27,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +40,10 @@ import java.util.stream.Collectors;
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Resource
     @Lazy(value = true)//避免循环调用，延迟加载，用到懒加载
-    private IEmployeeService userService;
+    private IEmployeeService iEmployeeService;
+    @Resource
+    @Lazy(value = true)//避免循环调用，延迟加载，用到懒加载
+    private ISysUserService iSysUserService;
     //由 handlerExceptionResolver 引入全局异常
     @Resource
     private HandlerExceptionResolver handlerExceptionResolver;
@@ -47,7 +54,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         //通过userId去数据库中查询user对应的角色
         //把角色信息封装到Authentication
         //把合法带有角色的Authentication带入本次Security框架，由Security框架进行鉴权
-        if (request.getServletPath().equals("/employee/login")) {
+        if (request.getServletPath().equals("/employee/login")||request.getServletPath().equals("/sysuser/login")) {
             // 放行
             filterChain.doFilter(request, response);
             return;
@@ -66,18 +73,33 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             //通过userId去数据库中查询user对应的角色
             //TODO 从redis（内存）中获取user对应的角色，高频访问的数据存入redis
             Employee employee = new Employee();
+            SysUser sysUser = new SysUser();
             employee.setId(Math.toIntExact(userId));
-            List<Role> roleList = userService.selectRolesByUserId(employee);
+            sysUser.setId(Math.toIntExact(userId));
+
+            List<Role> roleList = iEmployeeService.selectRolesByUserId(employee);
             //从角链表中获取Role_key形成List<String>:{"ROLE_teacher","ROLE_edu_admin"}
             List<String> roles = roleList.stream().map(role -> role.getRoleKey()).collect(Collectors.toList());
 
             LoginEmployee loginEmployee = new LoginEmployee();
             loginEmployee.setEmployee(employee);
             loginEmployee.setPermissions(roles);
+
+            List<String> sysuserroles = new ArrayList<>();
+            sysuserroles.add(sysUser.getRole());
+            LoginSysUSer loginSysUSer = new LoginSysUSer();
+            loginSysUSer.setSysUser(sysUser);
+            loginSysUSer.setPermissions(sysuserroles);
+
+
             // 把 usernamePasswordAuthenticationToken 设置到 security 框架，由 security 框架对后面的资源方法进行鉴权
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                     loginEmployee, null, loginEmployee.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken1 = new UsernamePasswordAuthenticationToken(
+                    loginSysUSer, null, loginSysUSer.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken1);
             //token 快要过期的处理
             Claim exp = decode.getClaim("exp");
             Date date = exp.asDate();
@@ -88,7 +110,9 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             //有 token，有 token 则重新存入 SessionStorage
             if (time <= 30) {
                 String token2 = JwtUtil.creatToken(employee,roles);
+                String token3 = JwtUtil.creatToken(sysUser,sysuserroles);
                 response.setHeader("token", token2);
+                response.setHeader("token", token3);
                 response.setHeader("Access-Control-Expose-Headers", "token");// 跨域
             }
             // 放行

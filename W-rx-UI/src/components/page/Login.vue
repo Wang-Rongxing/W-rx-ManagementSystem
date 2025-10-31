@@ -86,7 +86,7 @@
             // this.$router.push('/ht/dashboard');
 
 
-						ajaxPost('/employee/login', this.param).then(res => {
+						ajaxPost('/sysuser/login', this.param).then(res => {
 								this.flag = res ? true : false;
 								if (this.flag) {
 

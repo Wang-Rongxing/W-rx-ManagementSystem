@@ -45,9 +45,8 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
             // 下面开始设置权限
             .authorizeRequests(authorize -> authorize
-                    // 请求放开
-                    .requestMatchers("/employee/login").permitAll()
-                    // .antMatchers("/**").permitAll()
+                    // 两个登录接口都放开权限
+                    .requestMatchers("/employee/login", "/sysuser/login").permitAll()
                     // 其他地址的访问均需验证权限
                     .anyRequest().authenticated())
                     // 认证用户时用户信息加载配置，注入 springAuthUserService
