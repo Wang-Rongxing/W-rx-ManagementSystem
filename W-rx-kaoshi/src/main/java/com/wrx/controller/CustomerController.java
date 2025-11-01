@@ -8,6 +8,8 @@ import com.wrx.service.ICustomerService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -27,6 +29,28 @@ public class CustomerController {
     @PostMapping("/login")
     public LoginUserDto login(@RequestBody Customer customer){
         return customerService.login(customer);
+    }
+
+    //注册
+    @PostMapping("/register")
+    public Map<String, Object> register(@RequestBody Customer customer){
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            boolean success = customerService.register(customer);
+            if (success) {
+                result.put("success", true);
+                result.put("message", "注册成功");
+            } else {
+                result.put("success", false);
+                result.put("message", "注册失败，账号或手机号可能已存在");
+            }
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "注册过程中出现错误：" + e.getMessage());
+        }
+        
+        return result;
     }
 
 }

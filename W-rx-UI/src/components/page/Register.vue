@@ -4,8 +4,13 @@
     <div class="ms-login">
       <div class="ms-title">飛鱼酒店客户注册</div>
       <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
-        <el-form-item prop="jobId">
-          <el-input v-model="param.jobId" placeholder="账号" class="login-input">
+        <el-form-item prop="name">
+          <el-input v-model="param.name" placeholder="姓名" class="login-input">
+            <el-button slot="prepend" icon="el-icon-lx-people" plain circle></el-button>
+          </el-input>
+        </el-form-item>
+        <el-form-item prop="customerId">
+          <el-input v-model="param.customerId" placeholder="账号" class="login-input">
             <el-button slot="prepend" icon="el-icon-lx-people" plain circle></el-button>
           </el-input>
         </el-form-item>
@@ -14,17 +19,22 @@
             <el-button slot="prepend" icon="el-icon-lx-lock" plain circle></el-button>
           </el-input>
         </el-form-item>
-        <el-form-item prop="password">
-          <el-input type="password" placeholder="确认密码" v-model="param.password" show-password
-                    @keyup.enter.native="handleLogin()" class="login-input">
+        <el-form-item prop="password_repeat">
+          <el-input type="password" placeholder="确认密码" v-model="param.password_repeat" show-password
+                    @keyup.enter.native="handleRegister()" class="login-input">
             <el-button slot="prepend" icon="el-icon-lx-lock" plain circle></el-button>
+          </el-input>
+        </el-form-item>
+        <el-form-item prop="phone">
+          <el-input v-model="param.phone" placeholder="手机号" class="login-input">
+            <el-button slot="prepend" icon="el-icon-phone" plain circle></el-button>
           </el-input>
         </el-form-item>
         <el-select v-model="param.role" placeholder="请选择角色" class="role-select">
           <el-option label="客户" value="customer"/>
         </el-select>
         <div class="login-btn">
-          <el-button type="primary" :loading="loginLoading" @click="handleLogin()" class="submit-btn">登录</el-button>
+          <el-button type="primary" :loading="loginLoading" @click="handleRegister()" class="submit-btn">注册</el-button>
         </div>
         <div class="login-footer">
           <span class="register-link" @click="goToLogin()">返回登录</span>
@@ -46,82 +56,90 @@ export default {
       flag: false,
       loginLoading:false,
       param: {
-        jobId: '',
+        name: '',
+        customerId: '',
         password: '',
+        password_repeat: '',
+        phone: '',
         role: '',
       },
       rules: {
-        jobId: [{
-          required: true,
-          message: '请输入工号',
-          trigger: 'blur'
-        }],
-        password: [{
-          required: true,
-          message: '请输入密码',
-          trigger: 'blur'
-        }],
+        name: [
+          { required: true, message: '请输入姓名', trigger: 'blur' },
+          { min: 2, max: 20, message: '姓名长度应在2-20个字符之间', trigger: 'blur' }
+        ],
+        customerId: [
+          { required: true, message: '请输入账号', trigger: 'blur' },
+          { min: 4, max: 20, message: '账号长度应在4-20个字符之间', trigger: 'blur' },
+          { pattern: /^[a-zA-Z0-9_]+$/, message: '账号只能包含字母、数字和下划线', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 6, message: '密码长度不能少于6个字符', trigger: 'blur' },
+          { pattern: /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,}$/, message: '密码必须包含字母和数字', trigger: 'blur' }
+        ],
+        password_repeat: [
+          { required: true, message: '请确认密码', trigger: ['blur', 'input'] },
+          { validator: (rule, value, callback) => {
+              if (value !== '' && value !== this.param.password) {
+                callback(new Error('两次输入的密码不一致'));
+              } else {
+                callback();
+              }
+            }, trigger: ['blur', 'input'] }
+        ],
+        phone: [
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号格式', trigger: 'blur' }
+        ],
+        role: [
+          { required: true, message: '请选择角色', trigger: 'change' }
+        ]
       },
     };
   },
 
   methods: {
-    submitFormCustomer() {
-      //location.reload();
-      this.$refs.login.validate(valid => {
-        if (valid) {
-          this.loginLoading=true;
-
-
-          ajaxPost('/employee/login', this.param).then(res => {
-            this.flag = res ? true : false;
-            if (this.flag) {
-
-              //localStorage.setItem('user', JSON.stringify(res));
-              if(res.roles!=null&&res.roles.length>0){
-
-                sessionStorage.setItem('user', JSON.stringify(res));
-                this.$store.commit('setRoles',res.roles);
-                // this.$store.commit('setFlag', true);
-                getDynamicMenu();
-                // console.log(res.roles);
-                this.$message.success('登录成功');
-                //console.log(localStorage.getItem("user"));
-                //localStorage.setItem("ms_username",res.data.username);
-                this.$router.push('/HomeUser/home');
-              }else{
-                this.$message.error({message:'您没有权限访问系统',center: true});
+      submitFormCustomer() {
+        this.$refs.login.validate(valid => {
+          if (valid) {
+            this.loginLoading = true;
+            
+            // 调用客户注册接口
+            ajaxPost('/customer/register', this.param).then(res => {
+              if (res && res.success) {
+                this.$message.success('注册成功！即将跳转到登录页面');
+                // 注册成功后跳转到登录页面
+                setTimeout(() => {
+                  this.$router.push('/Login');
+                }, 1000);
               }
-
-            } else {
-              this.$message.error({message:'工号或密码错误',center: true});
-
-              return false;
-            }
-          })
-              .catch(error => {
-                this.loginLoading=false;
-
-              });
-        } else {
-          //this.$message.error('请输入账号和密码');
-          console.log('error submit!!');
-          return false;
+            })
+            .catch(error => {
+              console.error('注册请求失败:', error);
+              this.$message.error('网络错误，请稍后重试');
+            })
+            .finally(() => {
+              this.loginLoading = false;
+            });
+          } else {
+            console.log('表单验证失败');
+            return false;
+          }
+        });
+      },
+      goToLogin() {
+        this.$router.push('/Login');
+      },
+      handleRegister() {
+        switch (this.param.role) {
+          case 'customer':
+            this.submitFormCustomer();
+            break;
+          default:
+            this.$message.warning('请选择有效角色');
         }
-      });
-    },
-    goToLogin(){
-      this.$router.push('/Login');
-    },
-    handleLogin() {
-      switch (this.param.role) {
-        case 'customer':
-          this.submitFormCustomer();
-          break;
-        default:
-          this.$message.warning('请选择有效角色');
       }
-    }
   },
 };
 </script>

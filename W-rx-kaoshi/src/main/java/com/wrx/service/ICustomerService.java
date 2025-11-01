@@ -16,5 +16,7 @@ import com.wrx.entity.SysUser;
 public interface ICustomerService extends IService<Customer> {
     //登录
     LoginUserDto login(Customer customer);
+    //注册
+    boolean register(Customer customer);
 
 }

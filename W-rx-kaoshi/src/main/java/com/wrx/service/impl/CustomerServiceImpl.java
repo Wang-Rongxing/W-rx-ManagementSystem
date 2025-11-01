@@ -1,6 +1,7 @@
 package com.wrx.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wrx.dto.LoginUserDto;
 import com.wrx.entity.Customer;
 import com.wrx.mapper.CustomerMapper;
@@ -54,5 +55,32 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         roles.add("Customer");
         loginUserDto.setRoles(roles);
         return loginUserDto;
+    }
+
+    @Override
+    public boolean register(Customer customer) {
+        // 检查账号是否已存在
+        LambdaQueryWrapper<Customer> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Customer::getCustomerId, customer.getCustomerId());
+        Customer existingCustomer = baseMapper.selectOne(queryWrapper);
+        if (existingCustomer != null) {
+            // 账号已存在，注册失败
+            return false;
+        }
+        
+        // 检查手机号是否已被使用
+        LambdaQueryWrapper<Customer> phoneWrapper = new LambdaQueryWrapper<>();
+        phoneWrapper.eq(Customer::getPhone, customer.getPhone());
+        existingCustomer = baseMapper.selectOne(phoneWrapper);
+        if (existingCustomer != null) {
+            // 手机号已被使用，注册失败
+            return false;
+        }
+        
+        // 对密码进行加密
+        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+        
+        // 保存客户信息
+        return save(customer);
     }
 }
