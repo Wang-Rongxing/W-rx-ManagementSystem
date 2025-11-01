@@ -38,26 +38,12 @@
 						<i class="el-icon-caret-bottom"></i>
 					</span>
 					<el-dropdown-menu slot="dropdown">
-						<el-dropdown-item divided command="updatePassword">修改密码</el-dropdown-item>
 						<el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>
 					</el-dropdown-menu>
 				</el-dropdown>
 			</div>
 		</div>
-		<el-dialog title="修改密码" :visible.sync="editVisible" width="30%" :before-close="cancelEdit">
-			<el-form size="mini" ref="form" status-icon :rules="rules" :model="form" label-width="90px">
-				<el-form-item prop="password" label="密  码:"  class="handle-input-password">
-					<el-input type="password" v-model="form.password" ></el-input>
-				</el-form-item>
-				<el-form-item prop="rpassword" label="确认密码:"  class="handle-input-password">
-					<el-input type="password" v-model="form.rpassword"></el-input>
-				</el-form-item>
-			</el-form>
-			<span slot="footer" class="dialog-footer">
-				<el-button size="mini" @click="cancelEdit">取 消</el-button>
-				<el-button size="mini" type="primary" @click="saveEdit">确 定</el-button>
-			</span>
-		</el-dialog>
+		
 	</div>
 
 
@@ -72,53 +58,12 @@
 	} from '../../api/index';
 	export default {
 		data() {
-			var validatePassword = (rule, value, callback) => {
-				if (value === '') {
-					callback(new Error('请输入密码'));
-				} else {
-					if (this.form.rpassword !== '') {
-						this.$refs.form.validateField('rpassword');
-					}
-					callback();
-				}
-			};
-			var validateRpassword = (rule, value, callback) => {
-				if (value === '') {
-					callback(new Error('请再次输入密码'));
-				} else if (value !== this.form.password) {
-					callback(new Error('两次输入密码不一致!'));
-				} else {
-					callback();
-				}
-			};
 			return {
 				collapse: true,
 				fullscreen: false,
 				name: 'linxin',
 				message: 2,
-				editVisible: false,
-        activeIndex: '1', // 默认激活首页
-				form: {
-					password: '',
-					rpassword: ''
-				},
-				rules: {
-					password: [{required:true,
-							validator: validatePassword,
-							trigger: 'blur'
-						},
-						{
-							min: 6,
-							max: 8,
-							message: '长度在 6 到 8 个字符',
-							trigger: 'blur'
-						}
-					],
-					rpassword: [{required:true,
-						validator: validateRpassword,
-						trigger: 'blur'
-					}]
-				},
+				activeIndex: '1', // 默认激活首页
 				employee: JSON.parse(sessionStorage.getItem('user'))
 			};
 		},
@@ -147,36 +92,7 @@
             break;
           case '5':
             this.$router.push('/HomeUser/profile');
-            break;
-        }
-      },
-			cancelEdit() {
-				this.$refs.form.resetFields();
-				this.editVisible = false;
-			},
-			saveEdit() {
-				// console.log(this.employee);
-				this.$refs.form.validate((valid) => {
-					if (valid) {
-						let data = {
-							jobId: this.employee.jobId,
-							password: this.form.password
-						};
-						ajaxPost("/employee/updateUserPassword", data).then(res => {
-							if (res) {
-								this.$message.success(`密码修改成功`);
-								this.editVisible = false;
-								this.$refs.form.resetFields();
-								// this.form.password = '';
-								// this.form.rpassword = '';
-							} else {
-								this.$message.error(`密码修改失败`);
-							}
-						})
-					} else {
-						return false;
-					}
-				})
+				}
 			},
 
 			// 用户名下拉菜单选择事件
@@ -187,8 +103,6 @@
 					this.$router.push('/login');
 					//this.$router.replace({path: '/login'});
 					//location.reload();
-				} else if (command == 'updatePassword') {
-					this.editVisible = true;
 				}
 			},
 			// 侧边栏折叠

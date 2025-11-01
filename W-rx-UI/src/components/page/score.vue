@@ -36,8 +36,7 @@
 					<el-button type="primary" size="mini" @click="handlExport">导出成绩</el-button>
 				</div>
 				<el-table   :data="tableData" border class="table" ref="multipleTable" 
-				header-cell-class-name="table-header"	 @selection-change="handleSelectionChange">
-					<el-table-column type="selection"  align="center" ></el-table-column>
+				header-cell-class-name="table-header">
 					<el-table-column prop="sno" label="考试号" width="90px" align="center"></el-table-column>
 					<el-table-column prop="username" label="姓名"></el-table-column>
 					<el-table-column prop="sex" width="50px" label="性别"></el-table-column>

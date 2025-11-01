@@ -17,9 +17,8 @@
 				<el-button size="mini" type="primary" class="yel" @click="handlerest">重置</el-button>
 			</div>
 			<div v-show="tableShow">
-				<el-table :data="tableData" border class="table" ref="multipleTable"
-					header-cell-class-name="table-header" @selection-change="handleSelectionChange">
-					<el-table-column type="selection" width="55" align="center"></el-table-column>
+				<el-table :data="tableData" border class="table"
+					header-cell-class-name="table-header">
 					<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
           <el-table-column prop="name" label="用户名" width="260"></el-table-column>
 					<el-table-column prop="employeeId" label="工号" width="155"></el-table-column>
@@ -118,8 +117,7 @@
 					pageSize: 6
 				},
 				tableData: [],
-				multipleSelection: [],
-				delList: [],
+				
 				tableShow: false,
 				editVisible: false,
 				pageTotal: 0,
@@ -239,10 +237,7 @@
 					}
 				})
 			},
-			// 多选操作
-			handleSelectionChange(val) {
-				this.multipleSelection = val;
-			},
+
 
 			// 修改角色权限
 			setRoles(index, row) {

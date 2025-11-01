@@ -9,12 +9,6 @@
 		</div>
 		<div class="container">
 			<div class="handle-box">
-				<template>
-					<el-popconfirm @confirm="delAllSelection" confirm-button-text='确定' cancel-button-text='取消'
-						icon="el-icon-info" icon-color="red" title="确定要删除吗?">
-						<el-button slot="reference" type="primary" icon="el-icon-delete" class="bgred">批量删除</el-button>
-					</el-popconfirm>
-				</template>
 				<!-- <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
 				</el-button> -->
 				<el-select v-model="query.address" placeholder="地址" class="handle-select mr10">
@@ -26,9 +20,8 @@
 				<el-button type="primary" class="yel" @click="handlerest">重置</el-button>
 			</div>
 			<div v-show="tableShow">
-				<el-table  :data="tableData" border class="table" ref="multipleTable"
-					header-cell-class-name="table-header" @selection-change="handleSelectionChange">
-					<el-table-column type="selection" width="55" align="center"></el-table-column>
+				<el-table  :data="tableData" border class="table"
+					header-cell-class-name="table-header">
 					<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
 					<el-table-column prop="username" label="用户名"></el-table-column>
 					<el-table-column prop="password" label="密码"></el-table-column>
