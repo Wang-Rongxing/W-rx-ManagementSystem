@@ -40,8 +40,12 @@ export default {
       if (Array.isArray(roles) && roles.length > 0) {
         // 遍历roles数组查找匹配的角色
         for (let role of roles) {
-          if (role.includes('manager') || role === 'manager') {
+          if (role.includes('manager')) {
             return '经理';
+          } else if (role.includes('roomattendant')) {
+            return '客房管理员';
+          } else if (role.includes('reception')){
+            return '前台';
           }
         }
         // 如果没有找到经理角色，返回第一个角色的中文名称

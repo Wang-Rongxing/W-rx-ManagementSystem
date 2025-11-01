@@ -43,7 +43,11 @@ service.interceptors.response.use(
 	},
 	error => {
 		// 401没权限
-		console.log(error.response);
+		console.log('请求错误:', error);
+		
+		// 判断是否是页面初次加载或刷新时发生的错误
+		const isPageLoadOrRefresh = !router.history.current.matched.length;
+		
 		if (error.response) { //如果服务器有错误回应
 			if (error.response.status === 401 ) { //如果没有权限
 				sessionStorage.removeItem("user");
@@ -54,25 +58,27 @@ service.interceptors.response.use(
 					center: true
 				});
 				router.push('/login'); //要求重新登录
-			} else{
-				//输出来自服务器的异常信息
-				ElementUI.Message.error({
-					message: error.response.data.msg ? error.response.data.msg : "服务器没有提供此服务",
-					duration: 6000,
-					center: true
-				});
+			} else {
+				// 对于页面加载或刷新时的非401错误，不显示错误信息，让App.vue中的错误处理逻辑来处理
+				if (!isPageLoadOrRefresh) {
+					//输出来自服务器的异常信息
+					ElementUI.Message.error({
+						message: error.response.data.msg ? error.response.data.msg : "服务器没有提供此服务",
+						duration: 6000,
+						center: true
+					});
+				}
 			}
-		} else { //没有连接上服务器的错误提示
-			// this.$message.error({
+		} else if (!isPageLoadOrRefresh) { //没有连接上服务器的错误提示，且不是页面加载或刷新时的错误
+			// 只在用户操作过程中的请求失败时显示错误信息
 			ElementUI.Message.error({
-				message: "服务器无响应",
-				duration: 6000,
+				message: "网络连接失败，请检查您的网络设置",
+				duration: 4000,
 				center: true
 			});
 		}
 		
-		//console.log(error);
-		return Promise.reject();
+		return Promise.reject(error); // 传递错误对象，方便上层组件处理
 	}
 );
 

@@ -31,7 +31,7 @@
 				let roles=res;
 				// let roles = JSON.parse(sessionStorage.getItem("roles"));
 				// console.log(roles);
-				if (roles.length > 0) {
+				if (roles && roles.length > 0) {
 					this.$store.commit('setRoles', roles);
 					// this.$store.commit('setFlag', true);
 					getDynamicMenu();
@@ -39,7 +39,23 @@
 					this.$message.error({message:'您没有权限访问系统,请联系管理员',center: true});
 					this.$router.push('/login');
 				}
-				
+				})
+				.catch(error => {
+					console.error('获取路由权限失败:', error);
+					// 使用try-catch避免在请求失败时页面卡死
+					try {
+						// 尝试使用本地缓存的角色信息
+						let user = JSON.parse(sessionStorage.getItem("user"));
+						if (user && user.roles && user.roles.length > 0) {
+							this.$store.commit('setRoles', user.roles);
+							getDynamicMenu();
+						} else {
+							this.$message.warning({message:'无法获取权限信息，已使用本地缓存',center: true});
+							this.$router.push('/login');
+						}
+					} catch (e) {
+						this.$router.push('/login');
+					}
 				})
 			} else {
 				let end = [{
