@@ -5,30 +5,20 @@
       <div class="ms-title">飛鱼酒店客户注册</div>
       <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
         <el-form-item prop="name">
-          <el-input v-model="param.name" placeholder="姓名" class="login-input">
-            <el-button slot="prepend" icon="el-icon-lx-people" plain circle></el-button>
-          </el-input>
+          <el-input v-model="param.name" placeholder="姓名" class="login-input" prefix-icon="el-icon-lx-people"></el-input>
         </el-form-item>
         <el-form-item prop="customerId">
-          <el-input v-model="param.customerId" placeholder="账号" class="login-input">
-            <el-button slot="prepend" icon="el-icon-lx-people" plain circle></el-button>
-          </el-input>
+          <el-input v-model="param.customerId" placeholder="账号" class="login-input" prefix-icon="el-icon-lx-people"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input type="password" placeholder="密码" v-model="param.password" show-password class="login-input">
-            <el-button slot="prepend" icon="el-icon-lx-lock" plain circle></el-button>
-          </el-input>
+          <el-input type="password" placeholder="密码" v-model="param.password" show-password class="login-input" prefix-icon="el-icon-lx-lock"></el-input>
         </el-form-item>
         <el-form-item prop="password_repeat">
           <el-input type="password" placeholder="确认密码" v-model="param.password_repeat" show-password
-                    @keyup.enter.native="handleRegister()" class="login-input">
-            <el-button slot="prepend" icon="el-icon-lx-lock" plain circle></el-button>
-          </el-input>
+                    @keyup.enter.native="handleRegister()" class="login-input" prefix-icon="el-icon-lx-lock"></el-input>
         </el-form-item>
         <el-form-item prop="phone">
-          <el-input v-model="param.phone" placeholder="手机号" class="login-input">
-            <el-button slot="prepend" icon="el-icon-phone" plain circle></el-button>
-          </el-input>
+          <el-input v-model="param.phone" placeholder="手机号" class="login-input" prefix-icon="el-icon-phone"></el-input>
         </el-form-item>
         <el-select v-model="param.role" placeholder="请选择角色" class="role-select">
           <el-option label="客户" value="customer"/>

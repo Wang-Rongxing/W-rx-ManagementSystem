@@ -24,7 +24,7 @@ const state = {
 			component: () => import( /* webpackChunkName: "table" */ '../components/page/employee.vue'),
 			meta: {
 				title: '酒店员工',
-				roles: ['admin','manager']
+				roles: ['admin']
 			},
 			icon: 'el-icon-s-custom',
 			index: 'employee',
@@ -35,7 +35,7 @@ const state = {
 			component: () => import( /* webpackChunkName: "table" */'../components/page/permission.vue'),
 			meta: {
 				title: '权限管理',
-				roles: ['admin','manager']
+				roles: ['admin']
 			},
 			icon: 'el-icon-s-check',
 			index: 'permission',
@@ -46,7 +46,7 @@ const state = {
 			component: () => import( /* webpackChunkName: "table" */'../components/page/student.vue'),
 			meta: {
 				title: '客户管理',
-				roles: ['admin','manager']
+				roles: ['manager']
 			},
 			icon: 'el-icon-user',
 			index: 'customer',
@@ -57,7 +57,7 @@ const state = {
 			component: () => import( /* webpackChunkName: "table" */'../components/page/Order.vue'),
 			meta: {
 				title: '订单管理',
-				roles: ['admin','manager']
+				roles: ['manager']
 			},
 			icon: 'el-icon-document',
 			index: 'order',
@@ -68,7 +68,7 @@ const state = {
 			component: () => import( /* webpackChunkName: "table" */'../components/page/Room.vue'),
 			meta: {
 				title: '客房管理',
-				roles: ['admin','manager']
+				roles: ['roomattendant']
 			},
 			icon: 'el-icon-s-home',
 			index: 'room',
@@ -79,7 +79,7 @@ const state = {
 			component: () => import( /* webpackChunkName: "table" */'../components/page/Checkin.vue'),
 			meta: {
 				title: '入住登记',
-				roles: ['admin','manager']
+				roles: ['manager']
 			},
 			icon: 'el-icon-s-order',
 			index: 'checkin',

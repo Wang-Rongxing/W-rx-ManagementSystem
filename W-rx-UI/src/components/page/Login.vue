@@ -5,15 +5,11 @@
 			<div class="ms-title">飛鱼酒店登录</div>
 			<el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
 				<el-form-item prop="employeeId">
-					<el-input v-model="param.employeeId" placeholder="账号" class="login-input">
-						<el-button slot="prepend" icon="el-icon-lx-people" plain circle></el-button>
-					</el-input>
+					<el-input v-model="param.employeeId" placeholder="账号" class="login-input" prefix-icon="el-icon-lx-people"></el-input>
 				</el-form-item>
 				<el-form-item prop="password">
 					<el-input type="password" placeholder="密码" v-model="param.password" show-password
-						@keyup.enter.native="handleLogin()" class="login-input">
-						<el-button slot="prepend" icon="el-icon-lx-lock" plain circle></el-button>
-					</el-input>
+						@keyup.enter.native="handleLogin()" class="login-input" prefix-icon="el-icon-lx-lock"></el-input>
 				</el-form-item>
         <el-select v-model="param.role" placeholder="请选择角色" class="role-select">
           <el-option label="管理员" value="admin" />
