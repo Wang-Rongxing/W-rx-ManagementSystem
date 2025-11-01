@@ -176,8 +176,8 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
             return false;
         }
         
-        // 设置默认密码为工号后6位，如果工号不足6位则使用整个工号
-        String defaultPassword = employeeId.length() > 6 ? employeeId.substring(employeeId.length() - 6) : employeeId;
+        // 设置默认密码
+        String defaultPassword = "wrx123456";
         
         // 对默认密码进行加密
         String encodedPassword = passwordEncoder.encode(defaultPassword);
