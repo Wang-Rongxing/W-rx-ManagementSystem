@@ -84,9 +84,7 @@
             // //console.log(localStorage.getItem("user"));
             // //localStorage.setItem("ms_username",res.data.username);
             // this.$router.push('/ht/dashboard');
-
             ajaxPost('/sysuser/login', {account: this.param.employeeId, password: this.param.password}).then(res => {
-						//ajaxPost('/sysuser/login', this.param).then(res => {
 								this.flag = res ? true : false;
 								if (this.flag) {
 

@@ -50,7 +50,7 @@ public class SecurityConfig {
             // 下面开始设置权限
             .authorizeRequests(authorize -> authorize
                     // 登录和注册接口都放开权限
-                    .requestMatchers("/employee/login", "/sysuser/login", "/customer/login", "/customer/register").permitAll()
+                    .requestMatchers("/employee/login", "/sysuser/login", "/customer/login", "/customer/register","/roledto/add").permitAll()
                     // 其他地址的访问均需验证权限
                     .anyRequest().authenticated())
                     // 明确指定使用统一的用户详情服务

@@ -35,37 +35,91 @@ public class UnifiedUserDetailsServiceImpl implements UserDetailsService {
     
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 尝试作为员工登录
-        LambdaQueryWrapper<Employee> employeeWrapper = new LambdaQueryWrapper<>();
-        employeeWrapper.eq(Employee::getEmployeeId, username);
-        Employee employee = employeeMapper.selectOne(employeeWrapper);
-        if (!Objects.isNull(employee)) {
-            LoginEmployee loginEmployee = new LoginEmployee();
-            loginEmployee.setEmployee(employee);
-            return loginEmployee;
+        // 从username中提取角色信息（格式: role:username）
+        String[] parts = username.split(":");
+        if (parts.length != 2) {
+            throw new RuntimeException("用户名格式错误，应为: role:username");
         }
         
-        // 尝试作为客户登录
-        LambdaQueryWrapper<Customer> customerWrapper = new LambdaQueryWrapper<>();
-        customerWrapper.eq(Customer::getCustomerId, username);
-        Customer customer = customerMapper.selectOne(customerWrapper);
-        if (!Objects.isNull(customer)) {
-            LoginCustomer loginCustomer = new LoginCustomer();
-            loginCustomer.setCustomer(customer);
-            return loginCustomer;
-        }
+        String role = parts[0];
+        String actualUsername = parts[1];
         
-        // 尝试作为系统用户登录
+        // 根据不同的角色运行不同的代码
+        switch (role) {
+            case "admin":
+                // 系统管理员角色处理逻辑
+                return handleAdminLogin(actualUsername);
+                
+            case "hotel":
+                // 酒店员工角色处理逻辑
+                return handleEmployeeLogin(actualUsername);
+                
+            case "customer":
+                // 客户角色处理逻辑
+                return handleCustomerLogin(actualUsername);
+                
+            default:
+                throw new RuntimeException("不支持的角色类型: " + role);
+        }
+    }
+    
+    /**
+     * 处理系统管理员登录
+     */
+    private UserDetails handleAdminLogin(String username) {
         LambdaQueryWrapper<SysUser> sysUserWrapper = new LambdaQueryWrapper<>();
         sysUserWrapper.eq(SysUser::getAccount, username);
         SysUser sysUser = sysUserMapper.selectOne(sysUserWrapper);
-        if (!Objects.isNull(sysUser)) {
-            LoginSysUSer loginSysUSer = new LoginSysUSer();
-            loginSysUSer.setSysUser(sysUser);
-            return loginSysUSer;
+        
+        if (Objects.isNull(sysUser)) {
+            throw new RuntimeException("系统用户不存在: " + username);
         }
         
-        // 如果所有类型都找不到用户，则抛出异常
-        throw new RuntimeException("用户名错误或不存在");
+        // 管理员特有的业务逻辑
+        System.out.println("管理员登录: " + username);
+        
+        LoginSysUSer loginSysUSer = new LoginSysUSer();
+        loginSysUSer.setSysUser(sysUser);
+        return loginSysUSer;
+    }
+    
+    /**
+     * 处理酒店员工登录
+     */
+    private UserDetails handleEmployeeLogin(String username) {
+        LambdaQueryWrapper<Employee> employeeWrapper = new LambdaQueryWrapper<>();
+        employeeWrapper.eq(Employee::getEmployeeId, username);
+        Employee employee = employeeMapper.selectOne(employeeWrapper);
+        
+        if (Objects.isNull(employee)) {
+            throw new RuntimeException("员工不存在: " + username);
+        }
+        
+        // 员工特有的业务逻辑
+        System.out.println("员工登录: " + username);
+        
+        LoginEmployee loginEmployee = new LoginEmployee();
+        loginEmployee.setEmployee(employee);
+        return loginEmployee;
+    }
+    
+    /**
+     * 处理客户登录
+     */
+    private UserDetails handleCustomerLogin(String username) {
+        LambdaQueryWrapper<Customer> customerWrapper = new LambdaQueryWrapper<>();
+        customerWrapper.eq(Customer::getCustomerId, username);
+        Customer customer = customerMapper.selectOne(customerWrapper);
+        
+        if (Objects.isNull(customer)) {
+            throw new RuntimeException("客户不存在: " + username);
+        }
+        
+        // 客户特有的业务逻辑
+        System.out.println("客户登录: " + username);
+        
+        LoginCustomer loginCustomer = new LoginCustomer();
+        loginCustomer.setCustomer(customer);
+        return loginCustomer;
     }
 }

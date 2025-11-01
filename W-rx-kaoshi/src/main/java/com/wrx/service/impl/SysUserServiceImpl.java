@@ -36,7 +36,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         //判断获取的 UserDetails 信息中的密码是否和前端提交的密码一致，
         //security调用AuthenticationManager进行认证
         // 如果一致返回一个通过验证了的 UserDetails（LoginUser），如果密码不一致抛出异常
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(sysUser.getAccount(), sysUser.getPassword());
+        // 将角色信息包含在username中，格式：role:username
+        String usernameWithRole = "admin:" + sysUser.getAccount();
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(usernameWithRole, sysUser.getPassword());
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         //把合法的authentication的内容处理或封装到LoginUserDto
         LoginSysUSer loginSysUSer = (LoginSysUSer) authentication.getPrincipal();
