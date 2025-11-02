@@ -1,7 +1,7 @@
 package com.wrx.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wrx.entity.Order;
+import com.wrx.entity.Orders;
 
 /**
  * <p>
@@ -11,6 +11,6 @@ import com.wrx.entity.Order;
  * @author 王荣星
  * @since 2025-10-28
  */
-public interface OrderMapper extends BaseMapper<Order> {
+public interface OrdersMapper extends BaseMapper<Orders> {
 
 }

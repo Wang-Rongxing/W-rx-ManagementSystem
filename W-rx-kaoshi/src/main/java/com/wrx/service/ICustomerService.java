@@ -31,4 +31,5 @@ public interface ICustomerService extends IService<Customer> {
     
     //插入新客户
     boolean insertUser(Customer customer);
+    //
 }
