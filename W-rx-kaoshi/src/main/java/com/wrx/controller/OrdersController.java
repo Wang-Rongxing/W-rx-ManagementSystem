@@ -2,6 +2,7 @@ package com.wrx.controller;
 
 import com.wrx.entity.Orders;
 import com.wrx.service.IOrdersService;
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ import java.util.Map;
 @RequestMapping("/orders")
 public class OrdersController {
 
-    @Autowired
+    @Resource
     private IOrdersService orderService;
 
     /**
