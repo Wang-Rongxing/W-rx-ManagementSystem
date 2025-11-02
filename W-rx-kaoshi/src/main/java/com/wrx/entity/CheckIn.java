@@ -31,24 +31,24 @@ public class CheckIn implements Serializable {
     private Integer checkInId;
 
     /**
-     * 客户
+     * 关联客户ID
      */
-    private String username;
+    private Integer customerId;
 
     /**
-     * 房间号
+     * 关联客房ID
      */
-    private Integer room;
-
-    /**
-     * 客房类型
-     */
-    private String roomType;
+    private Integer roomId;
 
     /**
      * 实际入住时间
      */
     private LocalDateTime actualCheckIn;
+
+    /**
+     * 退房时间
+     */
+    private LocalDateTime actualCheckOut;
 
 
 }
