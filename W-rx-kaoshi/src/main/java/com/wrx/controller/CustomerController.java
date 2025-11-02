@@ -107,5 +107,21 @@ public class CustomerController {
             return false;
         }
     }
+    
+    //删除客户
+    @DeleteMapping("/delete/{id}")
+    public boolean deleteCustomer(@PathVariable Integer id){
+        if (id == null || id <= 0) {
+            return false;
+        }
+        try {
+            return customerService.removeById(id);
+        } catch (Exception e) {
+            // 可以添加日志记录
+            System.out.println("删除客户异常: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 }
