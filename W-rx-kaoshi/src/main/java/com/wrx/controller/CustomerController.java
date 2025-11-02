@@ -71,5 +71,41 @@ public class CustomerController {
             return result;
         }
     }
+    
+    //插入新客户
+    @PostMapping("/insertUser")
+    public boolean insertUser(@RequestBody Customer customer){
+        System.out.println("接收到添加客户请求: " + customer);
+        
+        if (customer == null) {
+            System.out.println("客户对象为空");
+            return false;
+        }
+        
+        if (customer.getCustomerId() == null || customer.getCustomerId().isEmpty()) {
+            System.out.println("客户ID为空");
+            return false;
+        }
+        
+        if (customer.getName() == null || customer.getName().isEmpty()) {
+            System.out.println("客户姓名为空");
+            return false;
+        }
+        
+        if (customer.getPassword() == null || customer.getPassword().isEmpty()) {
+            System.out.println("客户密码为空");
+            return false;
+        }
+        
+        try {
+            boolean result = customerService.insertUser(customer);
+            System.out.println("添加客户结果: " + result);
+            return result;
+        } catch (Exception e) {
+            System.out.println("添加客户异常: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 }

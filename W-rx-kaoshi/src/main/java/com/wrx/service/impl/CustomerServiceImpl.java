@@ -138,4 +138,30 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         
         return result;
     }
+    
+    @Override
+    public boolean insertUser(Customer customer) {
+        
+        // 检查入参
+        if (customer == null || customer.getCustomerId() == null || customer.getCustomerId().isEmpty()) {
+            System.out.println("客户ID为空");
+            return false;
+        }
+        
+        // 检查客户ID是否已存在
+        LambdaQueryWrapper<Customer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Customer::getCustomerId, customer.getCustomerId());
+        Customer existingCustomer = this.getOne(wrapper);
+        if (existingCustomer != null) {
+            System.out.println("客户ID已存在: " + customer.getCustomerId());
+            return false;
+        }
+
+        
+        // 对密码进行加密
+        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+        
+        // 保存客户信息
+        return this.save(customer);
+    }
 }

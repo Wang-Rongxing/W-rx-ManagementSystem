@@ -190,7 +190,7 @@ export default {
     getDataByIdOrName() {
       // 构造正确的参数格式
       let searchParams = {
-        customerId: this.query.jobId,
+        employeeId: this.query.jobId,
         name: this.query.username
       };
       ajaxPost("/customer/selectCustomerByIdOrName", searchParams).then(res => {
@@ -218,7 +218,7 @@ export default {
         if (valid) {
           let data = {
             "name": this.formAdd.name,
-            "employeeId": this.formAdd.employeeId,
+            "customerId": this.formAdd.customerId,
             "password": this.formAdd.password,
             "phone": this.formAdd.phone
           };

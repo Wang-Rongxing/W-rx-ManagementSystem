@@ -28,4 +28,7 @@ public interface ICustomerService extends IService<Customer> {
     Map<String, Object> selectAllUser(Customer customer, int pageIndex, int pageSize);
 
     Map<String, Object> selectCustomerByIdOrName(Customer customer);
+    
+    //插入新客户
+    boolean insertUser(Customer customer);
 }
