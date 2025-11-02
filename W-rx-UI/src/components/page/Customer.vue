@@ -32,8 +32,8 @@
           <el-table-column label="操作" width="180" align="center">
             <template slot-scope="scope">
               <el-popconfirm @confirm="resetUserPassword(scope.$index, scope.row)" confirm-button-text='确定'
-                             cancel-button-text='取消' icon-color="#f56c6c" title="确定要重置密码吗?">
-                <el-button slot="reference" type="text" icon="el-icon-edit" class="mr10">重置密码
+                             cancel-button-text='取消' icon-color="#f56c6c" title="确定要编辑吗?">
+                <el-button slot="reference" type="text" icon="el-icon-edit" class="mr10">编辑
                 </el-button>
               </el-popconfirm>
               <template>
@@ -57,13 +57,19 @@
     </div>
 
     <!-- 编辑弹出框 -->
-    <el-dialog title="修改教师信息" :visible.sync="editVisible" width="360px">
+    <el-dialog title="修改客户信息" :visible.sync="editVisible" width="360px">
       <el-form ref="form" :model="form" label-width="70px">
         <el-form-item label="姓名:">
-          <el-input size="mini" v-model="form.username" class="handle-dialog-input mr10"></el-input>
+          <el-input size="mini" v-model="form.name" class="handle-dialog-input mr10"></el-input>
         </el-form-item>
         <el-form-item label="账号:">
-          <el-input size="mini" v-model="form.jobId" class="handle-dialog-input mr10"></el-input>
+          <el-input size="mini" v-model="form.customerId" class="handle-dialog-input mr10"></el-input>
+        </el-form-item>
+        <el-form-item label="密码:">
+          <el-input size="mini" v-model="form.password" class="handle-dialog-input mr10"></el-input>
+        </el-form-item>
+        <el-form-item label="电话:">
+          <el-input size="mini" v-model="form.phone" class="handle-dialog-input mr10"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -291,55 +297,45 @@ export default {
       })
     },
 
-    // 重置密码
+    // 编辑客户
     resetUserPassword(index, row) {
       if (!row || !row.id) {
-        this.$message.error('无效的员工数据');
+        this.$message.error('无效的客户数据');
         return;
       }
-      let data = {
-        "id": row.id,
-        "employeeId": row.employeeId
-      };
-      console.log('重置密码请求:', data);
-      ajaxGet("/customer/resetUserPassword", data).then(res => {
-        if (res) {
-          this.$message.success(`密码重置成功`);
-        } else {
-          this.$message.error(`密码重置失败`);
-        }
-      }).catch(error => {
-        console.error('密码重置操作失败:', error);
-        this.$message.error('密码重置操作异常，请稍后重试');
-      })
+      this.idx = index;
+      this.form = { ...row };
+      this.form.tempusername = row.name;
+      this.form.temppassword = row.password;
+      this.editVisible = true;
     },
     // 保存编辑
     saveEdit() {
       console.log(this.form);
       let data = {
         "id": this.form.id,
-        "username": this.form.username,
-        "password": this.form.password
+        "name": this.form.name,
+        "customerId": this.form.customerId,
+        "password": this.form.password,
+        "phone": this.form.phone
       };
       ajaxPost("/customer/updateUser", data).then(res => {
         if (res) {
           this.editVisible = false;
           this.$message.success(`修改第 ${this.idx + 1} 行成功`);
+          this.getData(); // 重新获取数据更新列表
         } else {
           this.editVisible = false;
-          this.form.username = this.form.tempusername;
-          this.form.password = this.form.temppassword;
-          this.$message.success(`修改第 ${this.idx + 1} 行失败`);
+          this.$message.error(`修改失败`);
         }
-        this.$set(this.tableData, this.idx, this.form);
+      }).catch(error => {
+        console.error('编辑操作失败:', error);
+        this.$message.error('编辑操作异常，请稍后重试');
       })
     },
     //取消编辑
     cancelEdit() {
       this.editVisible = false;
-      this.form.username = this.form.tempusername;
-      this.form.password = this.form.temppassword;
-      this.$set(this.tableData, this.idx, this.form);
     },
     // 分页导航
     handlePageChange(val) {
