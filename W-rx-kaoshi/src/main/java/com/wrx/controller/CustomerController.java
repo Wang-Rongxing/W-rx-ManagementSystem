@@ -3,11 +3,14 @@ package com.wrx.controller;
 
 import com.wrx.dto.LoginUserDto;
 import com.wrx.entity.Customer;
+import com.wrx.entity.Employee;
 import com.wrx.entity.SysUser;
 import com.wrx.service.ICustomerService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,6 +54,22 @@ public class CustomerController {
         }
         
         return result;
+    }
+    @GetMapping("/allUser")
+    public Map<String,Object> selectAllUser(Customer customer, int pageIndex, int pageSize){
+        return customerService.selectAllUser(customer,pageIndex,pageSize);
+    }
+    //根据账号或用户名搜索
+    @PostMapping("/selectCustomerByIdOrName")
+    public Map<String, Object> selectCustomerByIdOrName(@RequestBody Customer customer){
+        try {
+            return customerService.selectCustomerByIdOrName(customer);
+        } catch (Exception e) {
+            // 可以添加日志记录
+            Map<String, Object> result = new HashMap<>();
+            result.put("records", Collections.emptyList());
+            return result;
+        }
     }
 
 }

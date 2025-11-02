@@ -27,21 +27,6 @@
 					<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
           <el-table-column prop="name" label="用户名"></el-table-column>
 					<el-table-column prop="employeeId" label="工号"></el-table-column>
-					<!-- <el-table-column label="头像(查看大图)" align="center">
-						<template slot-scope="scope">
-							<el-image class="table-td-thumb" :src="scope.row.thumb"
-								:preview-src-list="[scope.row.thumb]">
-							</el-image>
-						</template>
-					</el-table-column>
-					<el-table-column prop="address" label="地址"></el-table-column>
-					<el-table-column label="状态" align="center">
-						<template slot-scope="scope">
-							<el-tag :type="scope.row.state==='成功'?'success':(scope.row.state==='失败'?'danger':'')">
-								{{scope.row.state}}
-							</el-tag>
-						</template>
-					</el-table-column> -->
 
 					<el-table-column prop="phone" label="电话"></el-table-column>
 					<el-table-column label="操作" width="180" align="center">

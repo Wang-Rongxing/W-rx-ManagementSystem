@@ -79,7 +79,7 @@
 
 					//  	        {
 					// 			path: '/ht/student',
-					// 				    component: () => import(/* webpackChunkName: "table" */ '../components/page/student.vue'),
+					// 				    component: () => import(/* webpackChunkName: "table" */ '../components/page/Customer.vue'),
 					// 				    meta: { title: '学生管理', roles:['ROLE_sys_admin'] },
 					//  	            index: 'student',
 					//  	            title: '学生管理'

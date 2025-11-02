@@ -1,9 +1,12 @@
 package com.wrx.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.wrx.dto.LoginUserDto;
 import com.wrx.entity.Customer;
+import com.wrx.entity.Employee;
 import com.wrx.mapper.CustomerMapper;
 import com.wrx.service.ICustomerService;
 import com.wrx.util.JwtUtil;
@@ -17,7 +20,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -84,5 +89,53 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         
         // 保存客户信息
         return save(customer);
+    }
+
+    @Override
+    public Page<Customer> selectByPage(Customer customer, int pageNum, int pageSize) {
+        LambdaQueryWrapper<Customer> wrapper = new LambdaQueryWrapper<Customer>();
+        if (StringUtils.isNotBlank(customer.getCustomerId()))
+            wrapper.like(Customer::getCustomerId, customer.getCustomerId());
+        if (StringUtils.isNotBlank(customer.getName()))
+            wrapper.like(Customer::getName, customer.getName());
+        Page<Customer> userPage = new Page<>(pageNum,pageSize);
+        return this.page(userPage, wrapper);
+    }
+
+    @Override
+    public Map<String, Object> selectAllUser(Customer customer, int pageIndex, int pageSize) {
+        Page<Customer> userPage = this.selectByPage(customer,pageIndex,pageSize);
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("records",userPage.getRecords());
+        map.put("total",userPage.getTotal());
+        map.put("pages",userPage.getPages());
+        return map;
+    }
+
+    @Override
+    public Map<String, Object> selectCustomerByIdOrName(Customer customer) {
+        // 创建查询条件构造器
+        LambdaQueryWrapper<Customer> wrapper = new LambdaQueryWrapper<>();
+        
+        // 根据customerId进行精确查询
+        if (StringUtils.isNotBlank(customer.getCustomerId())) {
+            wrapper.eq(Customer::getCustomerId, customer.getCustomerId());
+        }
+        
+        // 根据name进行模糊查询
+        if (StringUtils.isNotBlank(customer.getName())) {
+            wrapper.like(Customer::getName, customer.getName());
+        }
+        
+        // 执行查询获取符合条件的客户列表
+        List<Customer> customerList = this.list(wrapper);
+        
+        // 构建返回结果
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("records", customerList);
+        result.put("total", customerList.size());
+        result.put("pages", customerList.isEmpty() ? 0 : 1);
+        
+        return result;
     }
 }

@@ -43,7 +43,7 @@ const state = {
 		},
 		{
 			path: '/ht/customer',
-			component: () => import( /* webpackChunkName: "table" */'../components/page/student.vue'),
+			component: () => import( /* webpackChunkName: "table" */'../components/page/Customer.vue'),
 			meta: {
 				title: '客户管理',
 				roles: ['manager','reception']
