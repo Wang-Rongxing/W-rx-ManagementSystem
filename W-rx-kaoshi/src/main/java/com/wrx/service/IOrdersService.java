@@ -40,5 +40,12 @@ public interface IOrdersService extends IService<Orders> {
      * @return 是否成功
      */
     boolean cancelOrder(Integer orderId);
+    
+    /**
+     * 办理入住
+     * @param orderId 订单ID
+     * @return 是否成功
+     */
+    boolean checkIn(Integer orderId);
 
 }

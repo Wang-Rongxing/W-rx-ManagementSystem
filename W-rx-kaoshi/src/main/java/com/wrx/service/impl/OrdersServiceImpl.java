@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wrx.dto.OrderDto;
+import com.wrx.entity.CheckIn;
 import com.wrx.entity.Customer;
 import com.wrx.entity.Orders;
 import com.wrx.entity.Room;
+import com.wrx.mapper.CheckInMapper;
 import com.wrx.mapper.CustomerMapper;
 import com.wrx.mapper.OrdersMapper;
 import com.wrx.mapper.RoomMapper;
@@ -14,6 +16,7 @@ import com.wrx.service.IOrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +40,8 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     private CustomerMapper customerMapper;
     @Autowired
     private RoomMapper roomMapper;
+    @Autowired
+    private CheckInMapper checkInMapper;
 
     @Override
     public Map<String, Object> selectAllUser(Orders orders, int pageIndex, int pageSize) {
@@ -205,6 +210,58 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
                 room.setStatus(1);
                 roomMapper.updateById(room);
             }
+        }
+        
+        // 5. 删除订单
+        return this.removeById(orderId);
+    }
+    
+    /**
+     * 办理入住
+     * 1. 查询订单信息
+     * 2. 创建入住记录
+     * 3. 更新客房状态为已入住（3）
+     * 4. 删除订单
+     * @param orderId 订单ID
+     * @return 是否成功
+     */
+    @Override
+    @Transactional
+    public boolean checkIn(Integer orderId) {
+        // 1. 根据订单ID查询订单信息
+        Orders order = this.getById(orderId);
+        if (order == null) {
+            return false;
+        }
+        
+        // 2. 获取订单关联的客户ID和客房ID
+        Integer customerId = order.getCustomerId();
+        Integer roomId = order.getRoomId();
+        
+        if (customerId == null || roomId == null) {
+            return false;
+        }
+        
+        // 3. 创建入住记录
+        CheckIn checkIn = new CheckIn();
+        checkIn.setCustomerId(customerId);
+        checkIn.setRoomId(roomId);
+        checkIn.setActualCheckIn(LocalDateTime.now()); // 入住时间为当前时间
+        checkIn.setActualCheckOut(null); // 退房时间为null
+        
+        boolean saveCheckIn = checkInMapper.insert(checkIn) > 0;
+        if (!saveCheckIn) {
+            return false;
+        }
+        
+        // 4. 更新客房状态为已入住（3）
+        QueryWrapper<Room> roomQueryWrapper = new QueryWrapper<>();
+        roomQueryWrapper.eq("room_id", roomId);
+        Room room = roomMapper.selectOne(roomQueryWrapper);
+        
+        if (room != null) {
+            room.setStatus(3); // 3表示已入住
+            roomMapper.updateById(room);
         }
         
         // 5. 删除订单

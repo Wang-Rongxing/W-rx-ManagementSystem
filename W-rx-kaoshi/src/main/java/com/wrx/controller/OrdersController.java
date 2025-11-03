@@ -72,6 +72,39 @@ public class OrdersController {
     }
     
     /**
+     * 办理入住
+     * @param orderId 订单ID
+     * @return 办理结果
+     */
+    @PostMapping("/checkIn/{orderId}")
+    public Map<String, Object> checkIn(@PathVariable Integer orderId) {
+        Map<String, Object> result = new HashMap<>();
+        
+        if (orderId == null) {
+            result.put("code", "400");
+            result.put("message", "订单ID不能为空");
+            return result;
+        }
+        
+        try {
+            // 调用办理入住方法
+            boolean success = orderService.checkIn(orderId);
+            if (success) {
+                result.put("code", "200");
+                result.put("message", "办理入住成功");
+            } else {
+                result.put("code", "400");
+                result.put("message", "办理入住失败，订单不存在或数据不完整");
+            }
+        } catch (Exception e) {
+            result.put("code", "500");
+            result.put("message", "办理入住异常：" + e.getMessage());
+        }
+        
+        return result;
+    }
+    
+    /**
      * 根据客户姓名和电话查询订单
      * @param customerName 客户姓名
      * @param customerPhone 客户电话

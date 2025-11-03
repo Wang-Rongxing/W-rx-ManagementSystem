@@ -152,8 +152,8 @@ export default {
         type: 'info'
       })
         .then(() => {
-          // 这里调用办理入住的接口
-          ajaxPost('/orders/checkIn', { orderId: row.orderId })
+          // 调用办理入住的接口，使用路径参数
+          ajaxPost(`/orders/checkIn/${row.orderId}`)
             .then(res => {
               if (res && res.code === '200') {
                 this.$message.success('办理入住成功');
