@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * <p>
@@ -39,6 +40,9 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
 
     @Autowired
     private RoomMapper roomMapper;
+
+    @Autowired
+    private CheckInMapper checkInMapper;
 
     /**
      * 查询所有入住登记信息，包含客户和房间信息
@@ -155,7 +159,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
             if (checkIn.getRoomId() != null) {
                 Room room = roomMapper.selectById(checkIn.getRoomId());
                 if (room != null) {
-                    room.setStatus(1); // 设置为空闲状态
+                    room.setStatus(4); // 设置为空闲状态
                     roomMapper.updateById(room);
                 }
             }
@@ -271,6 +275,98 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
             result.put("total", 0);
             result.put("pageSize", pageSize);
             result.put("pageIndex", pageIndex);
+            e.printStackTrace();
+        }
+        
+        return result;
+    }
+    
+    /**
+     * 直接添加入住记录
+     * @param customerName 客户姓名
+     * @param customerPhone 客户电话
+     * @param roomType 房间类型
+     * @param roomNumber 房间编号
+     * @return 操作结果
+     */
+    @Override
+    @Transactional
+    public Map<String, Object> addCheckIn(String customerName, String customerPhone, String roomType, String roomNumber) {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            // 1. 参数校验
+            if (customerName == null || customerName.isEmpty() || customerPhone == null || customerPhone.isEmpty()
+                || roomType == null || roomType.isEmpty() || roomNumber == null || roomNumber.isEmpty()) {
+                result.put("code", "400");
+                result.put("message", "请填写完整的入住信息");
+                return result;
+            }
+            
+            // 2. 查找或创建客户
+            QueryWrapper<Customer> customerQueryWrapper = new QueryWrapper<>();
+            customerQueryWrapper.eq("phone", customerPhone);
+            Customer customer = customerMapper.selectOne(customerQueryWrapper);
+            
+            if (customer == null) {
+                // 创建新客户
+                customer = new Customer();
+                customer.setName(customerName);
+                customer.setPhone(customerPhone);
+                customer.setCustomerId(customer.getPhone());
+                customer.setPassword(customerPhone.substring(customerPhone.length() - 6)); // 默认密码为手机号后6位
+                customerMapper.insert(customer);
+            } else {
+                // 验证客户姓名是否匹配
+                if (!customer.getName().equals(customerName)) {
+                    result.put("code", "400");
+                    result.put("message", "客户姓名与手机号不匹配");
+                    return result;
+                }
+            }
+            
+            // 3. 查找房间
+            QueryWrapper<Room> roomQueryWrapper = new QueryWrapper<>();
+            roomQueryWrapper.eq("room_number", roomNumber);
+            roomQueryWrapper.eq("room_type", roomType);
+            Room room = roomMapper.selectOne(roomQueryWrapper);
+            
+            if (room == null) {
+                result.put("code", "400");
+                result.put("message", "房间不存在或房间类型不匹配");
+                return result;
+            }
+            
+            // 4. 检查房间状态（1表示空闲）
+            if (room.getStatus() != 1) {
+                result.put("code", "400");
+                result.put("message", "房间已被占用");
+                return result;
+            }
+            
+            // 5. 创建入住记录
+            CheckIn checkIn = new CheckIn();
+            checkIn.setCustomerId(customer.getId());
+            checkIn.setRoomId(room.getRoomId());
+            checkIn.setActualCheckIn(LocalDateTime.now());
+            checkIn.setActualCheckOut(null);
+            
+            boolean saveResult = this.save(checkIn);
+            if (!saveResult) {
+                result.put("code", "500");
+                result.put("message", "创建入住记录失败");
+                return result;
+            }
+            
+            // 6. 更新房间状态为已入住（3）
+            room.setStatus(3);
+            roomMapper.updateById(room);
+            
+            result.put("code", "200");
+            result.put("message", "添加入住记录成功");
+        } catch (Exception e) {
+            result.put("code", "500");
+            result.put("message", "添加入住记录时发生异常：" + e.getMessage());
             e.printStackTrace();
         }
         

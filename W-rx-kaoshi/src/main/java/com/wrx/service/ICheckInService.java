@@ -40,5 +40,15 @@ public interface ICheckInService extends IService<CheckIn> {
      * @return 入住记录列表
      */
     Map<String, Object> selectbynameandphone(String customerName, String customerPhone, int pageIndex, int pageSize);
+    
+    /**
+     * 直接添加入住记录
+     * @param customerName 客户姓名
+     * @param customerPhone 客户电话
+     * @param roomType 房间类型
+     * @param roomNumber 房间编号
+     * @return 操作结果
+     */
+    Map<String, Object> addCheckIn(String customerName, String customerPhone, String roomType, String roomNumber);
 
 }

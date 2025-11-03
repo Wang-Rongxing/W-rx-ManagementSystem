@@ -82,4 +82,20 @@ public class CheckInController {
                                                  @RequestParam(defaultValue = "10") int pageSize) {
         return checkInService.selectbynameandphone(customerName, customerPhone, pageIndex, pageSize);
     }
+    
+    /**
+     * 直接添加入住记录
+     * @param request 包含入住信息的请求对象
+     * @return 操作结果
+     */
+    @PostMapping("/add")
+    @ResponseBody
+    public Map<String, Object> addCheckIn(@RequestBody Map<String, String> request) {
+        String customerName = request.get("customerName");
+        String customerPhone = request.get("customerPhone");
+        String roomType = request.get("roomType");
+        String roomNumber = request.get("roomNumber");
+        
+        return checkInService.addCheckIn(customerName, customerPhone, roomType, roomNumber);
+    }
 }
