@@ -1,18 +1,28 @@
 package com.wrx.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wrx.dto.CheckInDto;
 import com.wrx.dto.LoginUserDto;
+import com.wrx.entity.CheckIn;
 import com.wrx.entity.Customer;
 import com.wrx.entity.Employee;
+import com.wrx.entity.Room;
 import com.wrx.entity.SysUser;
+import com.wrx.mapper.CheckInMapper;
+import com.wrx.mapper.CustomerMapper;
+import com.wrx.mapper.RoomMapper;
 import com.wrx.service.ICustomerService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,6 +41,12 @@ public class CustomerController {
     private ICustomerService customerService;
     @Resource
     private PasswordEncoder passwordEncoder;
+    @Resource
+    private CheckInMapper checkInMapper;
+    @Resource
+    private CustomerMapper customerMapper;
+    @Resource
+    private RoomMapper roomMapper;
     //登录
     @PostMapping("/login")
     public LoginUserDto login(@RequestBody Customer customer){
@@ -280,6 +296,83 @@ public class CustomerController {
             e.printStackTrace();
             return false;
         }
+    }
+    
+    /**
+     * 根据客户ID查询历史入住记录
+     * @param customerId 客户ID
+     * @param page 页码
+     * @param pageSize 每页大小
+     * @return 历史入住记录列表
+     */
+    @GetMapping("/getHistory")
+    public Map<String, Object> getHistory(@RequestParam String customerId,
+                                        @RequestParam(defaultValue = "1") int page,
+                                        @RequestParam(defaultValue = "10") int pageSize) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            // 根据customerId查询客户信息，获取数据库主键ID
+            QueryWrapper<Customer> customerQueryWrapper = new QueryWrapper<>();
+            customerQueryWrapper.eq("customer_id", customerId);
+            Customer customer = customerMapper.selectOne(customerQueryWrapper);
+            
+            if (customer == null) {
+                result.put("success", false);
+                result.put("message", "客户不存在");
+                return result;
+            }
+            
+            // 创建查询条件，根据客户的数据库ID查询入住记录
+            QueryWrapper<CheckIn> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("customer_id", customer.getId());
+            queryWrapper.orderByDesc("actual_check_in"); // 按入住时间倒序
+            
+            // 创建分页对象
+            Page<CheckIn> pageObj = new Page<>(page, pageSize);
+            
+            // 执行分页查询
+            Page<CheckIn> checkInPage = checkInMapper.selectPage(pageObj, queryWrapper);
+            List<CheckIn> checkInList = checkInPage.getRecords();
+            
+            // 转换为DTO并关联查询房间信息
+            List<CheckInDto> checkInDtoList = new ArrayList<>();
+            for (CheckIn checkIn : checkInList) {
+                CheckInDto checkInDto = new CheckInDto();
+                
+                // 设置基本信息
+                checkInDto.setCheckInId(checkIn.getCheckInId());
+                checkInDto.setActualCheckIn(checkIn.getActualCheckIn());
+                checkInDto.setActualCheckOut(checkIn.getActualCheckOut());
+                checkInDto.setCustomerName(customer.getName());
+                checkInDto.setCustomerPhone(customer.getPhone());
+                
+                // 通过roomId查询房间信息
+                if (checkIn.getRoomId() != null) {
+                    Room room = roomMapper.selectById(checkIn.getRoomId());
+                    if (room != null) {
+                        checkInDto.setRoomType(room.getRoomType());
+                        checkInDto.setRoomNumber(room.getRoomNumber());
+                    }
+                }
+                
+                checkInDtoList.add(checkInDto);
+            }
+            
+            // 构造返回结果
+            result.put("records", checkInDtoList);
+            result.put("total", checkInPage.getTotal());
+            result.put("success", true);
+            result.put("message", "查询成功");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("success", false);
+            result.put("message", "查询失败：" + e.getMessage());
+            result.put("records", new ArrayList<>());
+            result.put("total", 0);
+        }
+        
+        return result;
     }
 
 }
