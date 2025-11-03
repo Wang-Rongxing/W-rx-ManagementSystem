@@ -8,10 +8,8 @@ import com.wrx.mapper.RoomMapper;
 import com.wrx.service.IRoomService;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -187,6 +185,60 @@ public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements IR
             System.out.println("更新客房异常: " + e.getMessage());
             e.printStackTrace();
             return false;
+        }
+    }
+
+    @Override
+    public List<String> getRoomTypes() {
+        try {
+            // 查询所有客房类型，去重
+            LambdaQueryWrapper<Room> wrapper = new LambdaQueryWrapper<>();
+            wrapper.select(Room::getRoomType);
+            wrapper.groupBy(Room::getRoomType);
+
+            List<Room> rooms = this.list(wrapper);
+            return rooms.stream()
+                    .map(Room::getRoomType)
+                    .filter(Objects::nonNull)
+                    .filter(type -> !type.isEmpty())
+                    .distinct()
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            System.out.println("获取客房类型失败: " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<String> selectRoomByroomTypeAndStatus(String roomType, Integer status) {
+        try {
+            LambdaQueryWrapper<Room> wrapper = new LambdaQueryWrapper<>();
+            
+            // 根据客房类型过滤
+            if (roomType != null && !roomType.isEmpty()) {
+                wrapper.eq(Room::getRoomType, roomType);
+            }
+            
+            // 根据状态过滤
+            if (status != null) {
+                wrapper.eq(Room::getStatus, status);
+            }
+            
+            // 查询并返回客房编号列表
+            List<Room> rooms = this.list(wrapper);
+            List<String> roomNumbers = rooms.stream()
+                    .map(Room::getRoomNumber)
+                    .filter(Objects::nonNull)
+                    .filter(num -> !num.isEmpty())
+                    .collect(Collectors.toList());
+            
+            System.out.println("查询到的客房数量: " + roomNumbers.size() + "，类型: " + roomType + "，状态: " + status);
+            return roomNumbers;
+        } catch (Exception e) {
+            System.out.println("查询客房失败: " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList();
         }
     }
 }

@@ -3,16 +3,7 @@ package com.wrx.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wrx.entity.Room;
 
-/**
- * <p>
- * 客房表 服务类
- * </p>
- *
- * @author 王荣星
- * @since 2025-10-28
- */
-import com.wrx.entity.Room;
-
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,7 +14,7 @@ import java.util.Map;
  * @author 王荣星
  * @since 2025-10-28
  */
-public interface IRoomService extends com.baomidou.mybatisplus.extension.service.IService<Room> {
+public interface IRoomService extends IService<Room> {
 
     // 查询所有客房信息（分页）
     Map<String, Object> selectAllRooms(Room room, Integer pageIndex, Integer pageSize);
@@ -36,4 +27,10 @@ public interface IRoomService extends com.baomidou.mybatisplus.extension.service
 
     // 更新客房信息
     boolean updateRoom(Room room);
+
+    // 获取所有客房类型
+    List<String> getRoomTypes();
+
+    // 根据客房类型和状态查询空闲客房编号列表
+    List<String> selectRoomByroomTypeAndStatus(String roomType, Integer status);
 }

@@ -5,6 +5,7 @@ import com.wrx.service.IRoomService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,5 +60,17 @@ public class RoomController {
             e.printStackTrace();
             return false;
         }
+    }
+    // 获取所有客房类型
+    @GetMapping("/types")
+    public List<String> getRoomTypes() {
+        return roomService.getRoomTypes();
+    }
+    
+    // 根据客房类型和状态查询客房
+    @GetMapping("/selectRoomByroomTypeAndStatus")
+    public List<String> selectRoomByroomTypeAndStatus(@RequestParam(required = false) String roomType,
+                                                  @RequestParam(required = false) Integer status) {
+        return roomService.selectRoomByroomTypeAndStatus(roomType, status);
     }
 }
