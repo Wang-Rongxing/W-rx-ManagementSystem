@@ -1,358 +1,505 @@
 <template>
-	<div>
-		<div class="crumbs">
-			<el-breadcrumb separator="/">
-				<el-breadcrumb-item>
-					<i class="el-icon-lx-cascades"></i> 权限管理
-				</el-breadcrumb-item>
-			</el-breadcrumb>
-		</div>
-		<div class="container">
-			<div class="handle-box">
-				<!-- <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAllSelection">批量删除
-				</el-button> -->
-				<el-input size="mini" v-model="query.employeeId" placeholder="工号" class="handle-select mr10"></el-input>
-				<el-input size="mini" v-model="query.name" placeholder="用户名" class="handle-input mr10"></el-input>
-				<el-button size="mini" type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
-				<el-button size="mini" type="primary" class="yel" @click="handlerest">重置</el-button>
-			</div>
-			<div v-show="tableShow">
-				<el-table :data="tableData" border class="table"
-					header-cell-class-name="table-header">
-					<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
-          <el-table-column prop="name" label="用户名" width="260"></el-table-column>
-					<el-table-column prop="employeeId" label="工号" width="155"></el-table-column>
-					<!-- <el-table-column label="头像(查看大图)" align="center">
-						<template slot-scope="scope">
-							<el-image class="table-td-thumb" :src="scope.row.thumb"
-								:preview-src-list="[scope.row.thumb]">
-							</el-image>
-						</template>
-					</el-table-column>
-					<el-table-column prop="address" label="地址"></el-table-column>
-					<el-table-column label="状态" align="center">
-						<template slot-scope="scope">
-							<el-tag :type="scope.row.state==='成功'?'success':(scope.row.state==='失败'?'danger':'')">
-								{{scope.row.state}}
-							</el-tag>
-						</template>
-					</el-table-column> -->
+  <div class="permission-management">
+    <div class="crumbs">
+      <el-breadcrumb separator="/">
+        <el-breadcrumb-item>
+          <i class="el-icon-lx-cascades"></i> 权限管理
+        </el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+    
+    <div class="container">
+      <!-- 搜索区域 -->
+      <div class="search-box">
+        <el-input size="small" v-model="query.name" placeholder="用户名" class="handle-input mr10"></el-input>
+        <el-input size="small" v-model="query.employeeId" placeholder="工号" class="handle-input mr10"></el-input>
+        <el-button size="small" type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
+        <el-button size="small" @click="handlerest">重置</el-button>
+      </div>
+      
+      <!-- 表格区域 -->
+      <div v-if="tableShow" class="table-container">
+        <el-table 
+          :data="tableData" 
+          class="table"
+          v-loading="loading"
+          element-loading-text="加载中..."
+          empty-text="暂无数据"
+        >
+          <el-table-column prop="id" label="ID" width="60" align="center"></el-table-column>
+          <el-table-column prop="name" label="用户名" min-width="150"></el-table-column>
+          <el-table-column prop="employeeId" label="工号" min-width="100"></el-table-column>
+          
+          <el-table-column label="权限" min-width="180">
+            <template slot-scope="scope">
+              <div class="role-list">
+                <el-tag 
+                  v-for="(role, index) in scope.row.roleList" 
+                  :key="index"
+                  size="small"
+                  type="info"
+                  class="role-tag"
+                >
+                  {{ role.name }}
+                </el-tag>
+                <span v-if="!scope.row.roleList || scope.row.roleList.length === 0" class="no-role">无权限</span>
+              </div>
+            </template>
+          </el-table-column>
+          
+          <el-table-column label="权限管理" width="120" align="center">
+            <template slot-scope="scope">
+              <el-popconfirm 
+                @confirm="setRoles(scope.$index, scope.row)" 
+                confirm-button-text='确定'
+                cancel-button-text='取消' 
+                icon-color="#f56c6c" 
+                title="确定要修改该用户的权限吗?"
+              >
+                <el-button 
+                  slot="reference" 
+                  type="primary" 
+                  size="small" 
+                  icon="el-icon-menu" 
+                  :disabled="scope.row.name=='admin'"
+                >
+                  修改权限
+                </el-button>
+              </el-popconfirm>
+            </template>
+          </el-table-column>
+        </el-table>
+        
+        <!-- 分页控件 -->
+        <div class="pagination">
+          <el-pagination 
+            background 
+            layout="total, prev, pager, next, jumper" 
+            :current-page="query.pageIndex"
+            :page-size="query.pageSize" 
+            :total="pageTotal" 
+            @current-change="handlePageChange"
+            @size-change="handleSizeChange"
+          ></el-pagination>
+        </div>
+      </div>
+      
+      <!-- 加载状态显示 -->
+      <div v-else-if="loading" class="loading-container">
+        <el-loading-spinner></el-loading-spinner>
+        <span class="loading-text">正在加载数据...</span>
+      </div>
+    </div>
 
-					<el-table-column label="权限">
-						<template slot-scope="scope">
-							<li v-for="role in scope.row.roleList" class="li">
-								{{ role.name }}
-							</li>
-						</template>
-
-					</el-table-column>
-					<el-table-column label="权限管理" width="180" align="center">
-						<template slot-scope="scope">
-							<el-button type="text" icon="el-icon-menu" class="mr10" :disabled="scope.row.name=='admin'"
-								@click="setRoles(scope.$index, scope.row)">修改权限
-							</el-button>
-							<!-- <template>
-								<el-popconfirm @confirm="handleDelete(scope.$index, scope.row)" confirm-button-text='确定'
-									cancel-button-text='取消' icon-color="red" title="确定要删除吗?">
-									<el-button slot="reference" type="text" icon="el-icon-delete" class="red">删除
-									</el-button>
-								</el-popconfirm>
-							</template> -->
-							<!-- <el-button type="text" icon="el-icon-delete" class="red"
-								@click="handleDelete(scope.$index, scope.row)">删除</el-button> -->
-						</template>
-					</el-table-column>
-				</el-table>
-				<div class="pagination">
-					<el-pagination background layout="total, prev, pager, next" :current-page="query.pageIndex"
-						:page-size="query.pageSize" :total="pageTotal" @current-change="handlePageChange">
-					</el-pagination>
-				</div>
-			</div>
-		</div>
-
-		<!-- 编辑弹出框 ref="form"  :model="form" -->
-		<el-dialog size="mini" title="修改权限" :visible.sync="editVisible" width="30%" :before-close="cancelEdit">
-			<el-form label-width="70px">
-				<el-form-item size="mini" label="姓名:">
-					{{form.name}}
-				</el-form-item>
-				<el-form-item size="mini" label="工号:">
-					{{form.employeeId}}
-				</el-form-item>
-				<el-form-item size="mini" label="权限:">
-<!--					 :default-checked-keys="roleCheck"   v-model="form.sysRoleList"-->
-					<el-tree :data="roleData" :props="defaultProps"
-						@check="handleTreeChecked" :default-expand-all="true" ref="tree" node-key="id" show-checkbox>
-					</el-tree>
-				</el-form-item>
-			</el-form>
-
-			<span slot="footer" class="dialog-footer">
-				<el-button size="mini" @click="cancelEdit">取 消</el-button>
-				<el-button size="mini" type="primary" @click="saveEdit">确 定</el-button>
-			</span>
-		</el-dialog>
-	</div>
+    <!-- 修改权限弹出框 -->
+    <el-dialog 
+      title="修改权限" 
+      :visible.sync="editVisible" 
+      width="400px" 
+      :before-close="cancelEdit"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <el-form label-width="100px">
+        <el-form-item label="姓名:">
+          <el-input v-model="form.name" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="工号:">
+          <el-input v-model="form.employeeId" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="权限:">
+          <el-tree 
+            :data="roleData" 
+            :props="defaultProps"
+            @check="handleTreeChecked" 
+            :default-expand-all="true" 
+            ref="tree" 
+            node-key="id" 
+            show-checkbox
+            check-strictly
+          ></el-tree>
+        </el-form-item>
+      </el-form>
+      
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelEdit">取消</el-button>
+        <el-button type="primary" @click="saveEdit">确定</el-button>
+      </div>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
-	import {
-		fetchData,
-		ajaxPost,
-		ajaxGet,
-		ajaxDelete
-	} from '../../api/index';
-	// import {
-	// 	ajaxPost
-	// } from '../../api/index';
-	export default {
-		name: 'basetable',
-		data() {
-				return {
-					query: {
-						employeeId: '',
-						name: '',
-					pageIndex: 1,
-					pageSize: 6
-				},
-				tableData: [],
-				
-				tableShow: false,
-				editVisible: false,
-				pageTotal: 0,
-				pages: 0,
+import {
+  ajaxPost,
+  ajaxGet
+} from '../../api/index';
 
-				form: {
-					tempRoleList: [],
-				},
-				roleData: [{
-					id: 0,
-					name: '选择权限',
-					children: [{
-							id: 1,
-							name: '经理'
-						},
-						{
-							id: 2,
-							name: '前台'
-						},
-						{
-							id: 3,
-							name: '客房管理员'
-						}
-					]
-				}],
-				defaultProps: {
-					children: 'children',
-					label: 'name'
-				},
-				idx: -1,
-				id: -1
-			};
-		},
-		created() {
-			this.getData();
-		},
-		methods: {
-			// 获取 easy-mock 的模拟数据
-			getData() {
-
-				ajaxGet("/employee/userWithRoleByPage", this.query).then(res => {
-					console.log(res);
-					if (res.records) {
-						this.tableShow = true;
-						this.tableData = res.records;
-						this.pageTotal = res.total;
-						this.pages = res.pages;
-					}
-				});
-			},
-      getDataRoleByIdOrName() {
+export default {
+  name: 'Permission',
+  data() {
+    return {
+      // 查询参数
+      query: {
+        employeeId: '',
+        name: '',
+        pageIndex: 1,
+        pageSize: 10
+      },
+      // 表格数据
+      tableData: [],
+      // 显示控制
+      tableShow: false,
+      loading: false,
+      editVisible: false,
+      // 分页信息
+      pageTotal: 0,
+      pages: 0,
+      // 表单数据
+      form: {
+        id: '',
+        name: '',
+        employeeId: '',
+        roleList: [],
+        tempRoleList: []
+      },
+      // 权限树数据
+      roleData: [
+        {
+          id: 1,
+          name: '经理'
+        },
+        {
+          id: 2,
+          name: '前台'
+        },
+        {
+          id: 3,
+          name: '客房管理员'
+        }
+      ],
+      // 权限树配置
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      }
+    };
+  },
+  
+  created() {
+    // 组件创建时获取数据
+    this.getData();
+  },
+  
+  methods: {
+    // 获取用户权限列表数据
+    async getData() {
+      try {
+        this.loading = true;
+        const res = await ajaxGet("/employee/userWithRoleByPage", this.query);
+        
+        if (res && res.records) {
+          // 确保每个员工都有roleList字段
+          const recordsWithRoleList = res.records.map(employee => ({
+            ...employee,
+            roleList: employee.roleList || []
+          }));
+          
+          this.tableShow = true;
+          this.tableData = recordsWithRoleList;
+          this.pageTotal = res.total || 0;
+          this.pages = res.pages || 0;
+        } else {
+          this.tableShow = false;
+          this.tableData = [];
+          this.pageTotal = 0;
+        }
+      } catch (error) {
+        console.error("获取用户权限列表失败:", error);
+        this.$message.error("获取数据失败，请稍后重试");
+        this.tableShow = false;
+        this.tableData = [];
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    // 根据工号和姓名查询
+    async getDataRoleByIdOrName() {
+      try {
+        this.loading = true;
+        
         // 构造正确的参数格式
-        let searchParams = {
+        const searchParams = {
           employeeId: this.query.employeeId,
           name: this.query.name
         };
+        
+        const res = await ajaxPost("/employee/selectEmployeeByIdOrName", searchParams);
+        
+        if (res && res.records) {
+          // 确保每个员工都有roleList字段
+          const recordsWithRoleList = res.records.map(employee => ({
+            ...employee,
+            roleList: employee.roleList || []
+          }));
+          
+          this.tableShow = true;
+          this.tableData = recordsWithRoleList;
+          this.pageTotal = res.total || 0;
 
-        ajaxPost("/employee/selectEmployeeByIdOrName", searchParams).then(res => {
-          if (res && res.records) {
-            // 确保每个员工都有roleList字段
-            const recordsWithRoleList = res.records.map(employee => ({
-              ...employee,
-              roleList: employee.roleList || []
-            }));
-            
-            this.tableShow = true;
-            this.tableData = recordsWithRoleList;
-            this.pageTotal = res.total || 0;
-
-            if (this.tableData.length === 0) {
-              this.$message.info("未找到匹配的员工信息");
-            }
-          } else {
-            this.tableShow = false;
-            this.tableData = [];
-            this.pageTotal = 0;
+          if (this.tableData.length === 0) {
             this.$message.info("未找到匹配的员工信息");
           }
-        }).catch(error => {
-          console.error("搜索请求失败:", error);
-          this.$message.error("搜索操作异常，请稍后重试");
-        });
-      },
-
-
-			// 触发搜索按钮
-			handleSearch() {
-				//this.$set(this.query, 'pageIndex', 1);
-				this.query.pageIndex = 1;
-				this.query.pageSize = 6;
-				this.getDataRoleByIdOrName();
-			},
-			//重置
-			handlerest() {
-				this.tableData = [];
-				this.tableShow = false;
-				this.query.employeeId = '';
-				this.query.name = '';
-				this.query.pageIndex = 1;
-        this.getData();
-			},
-			// 删除操作
-			handleDelete(index, row) {
-
-				console.log(row.id);
-				ajaxDelete('/employee', row.id).then(res => {
-					if (res) {
-						this.$message.success('删除成功');
-						if (this.tableData.length === 1 && this.query.pageIndex !== 1 && this.query.pageIndex ===
-							this.pages)
-							this.query.pageIndex -= 1;
-						console.log(this.query.pageIndex);
-						this.getData();
-						// this.tableData.splice(index, 1);
-					} else {
-						this.$message.error('删除失败');
-					}
-				})
-			},
-
-
-			// 修改角色权限
-			setRoles(index, row) {
-				this.form = row;
-				this.form.tempRoleList = row.roleList;
-				this.editVisible = true;
-				// let roleChecked = [];
-				// row.roleList.forEach(role => {
-				// 	if (role.name === '监考老师') {
-					// 		roleChecked.push(1);
-				// 	} else if (role.name === '教务老师') {
-					// 		roleChecked.push(2);
-				// 	} else {
-					// 		roleChecked.push(3);
-					// 	}
-				// });
-				//设置选中
-				this.$nextTick(() => {
-					this.$refs.tree.setCheckedNodes(row.roleList);
-					//this.$refs.tree.setCheckedKeys(roleChecked);
-				});
-			},
-			//tree中checkBox被选中事件处理
-			handleTreeChecked() {
-				this.form.roleList = this.$refs.tree.getCheckedNodes(true, true);
-			},
-			// 提交修改角色权限
-			saveEdit() {
-				console.log(this.form);
-				
-				ajaxPost("/employee/updateUserRole", this.form).then(res => {
-					if (res) {
-						this.editVisible = false;
-						this.$message.success(this.form.name+'的角色权限修改成功');
-					} else {
-						this.editVisible = false;
-						this.form.roleList = this.form.tempRoleList;
-						this.$message.error(this.form.name+'的角色权限修改失败');
-					}
-					//this.$set(this.tableData, this.idx, this.form);
-				})
-				// .catch(error => {
-				// 	this.editVisible = false;
-				// 	this.form.roleList = this.form.tempRoleList;
-				// 	this.$message.error(`服务器异常`);
-				// })
-			},
-			//取消权限设置
-			cancelEdit() {
-				this.form.roleList = this.form.tempRoleList;
-				this.editVisible = false;
-			},
-			//关闭对话框
-			// handleDialogClose() {
-			// 	this.cancelEdit();
-			// },
-			// 分页导航
-			handlePageChange(val) {
-				this.$set(this.query, 'pageIndex', val);
-				this.getData();
-			},
-
-		}
-	};
+        } else {
+          this.tableShow = false;
+          this.tableData = [];
+          this.pageTotal = 0;
+          this.$message.info("未找到匹配的员工信息");
+        }
+      } catch (error) {
+        console.error("搜索请求失败:", error);
+        this.$message.error("搜索操作异常，请稍后重试");
+        this.tableShow = false;
+        this.tableData = [];
+        this.pageTotal = 0;
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    // 触发搜索按钮
+    handleSearch() {
+      this.query.pageIndex = 1;
+      this.getDataRoleByIdOrName();
+    },
+    
+    // 重置搜索条件
+    handlerest() {
+      this.query.employeeId = '';
+      this.query.name = '';
+      this.query.pageIndex = 1;
+      this.getData();
+    },
+    
+    // 修改角色权限
+    setRoles(index, row) {
+      // 深拷贝，避免修改原数据
+      this.form = JSON.parse(JSON.stringify(row));
+      this.form.tempRoleList = JSON.parse(JSON.stringify(row.roleList || []));
+      this.editVisible = true;
+      
+      // 下一帧设置选中项
+      this.$nextTick(() => {
+        if (this.$refs.tree) {
+          // 清空所有选中
+          this.$refs.tree.setCheckedKeys([]);
+          // 设置当前用户的权限
+          if (row.roleList && row.roleList.length > 0) {
+            const roleIds = row.roleList.map(role => role.id);
+            this.$refs.tree.setCheckedKeys(roleIds);
+          }
+        }
+      });
+    },
+    
+    // 权限树选择变化处理
+    handleTreeChecked() {
+      if (this.$refs.tree) {
+        // 获取选中的权限节点
+        this.form.roleList = this.$refs.tree.getCheckedNodes(false, true);
+      }
+    },
+    
+    // 提交修改角色权限
+    async saveEdit() {
+      try {
+        // 检查是否选择了权限
+        if (!this.form.roleList || this.form.roleList.length === 0) {
+          this.$message.warning('请至少选择一个权限');
+          return;
+        }
+        
+        const res = await ajaxPost("/employee/updateUserRole", this.form);
+        
+        if (res) {
+          this.editVisible = false;
+          this.$message.success(`${this.form.name}的角色权限修改成功`);
+          // 重新获取数据更新列表
+          this.getData();
+        } else {
+          this.editVisible = false;
+          this.$message.error(`${this.form.name}的角色权限修改失败`);
+        }
+      } catch (error) {
+        console.error("更新用户权限失败:", error);
+        this.editVisible = false;
+        this.$message.error('权限修改操作异常，请稍后重试');
+      }
+    },
+    
+    // 取消权限设置
+    cancelEdit() {
+      this.form.roleList = this.form.tempRoleList;
+      this.editVisible = false;
+    },
+    
+    // 分页导航 - 页码变化
+    handlePageChange(val) {
+      this.query.pageIndex = val;
+      this.getData();
+    },
+    
+    // 分页导航 - 每页大小变化
+    handleSizeChange(val) {
+      this.query.pageSize = val;
+      this.query.pageIndex = 1;
+      this.getData();
+    }
+  }
+};
 </script>
 
 <style scoped>
-	.handle-box {
-		margin-bottom: 20px;
-	}
+.permission-management {
+  padding: 15px;
+}
 
-	.handle-select {
-		width: 120px;
-	}
+.crumbs {
+  margin-bottom: 20px;
+}
 
-	.handle-input {
-		width: 180px;
-		display: inline-block;
-	}
+.container {
+  background-color: #fff;
+  border-radius: 6px;
+  padding: 20px;
+}
 
-	.table {
-		width: 100%;
-		font-size: 10px;
-	}
+.search-box {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+}
 
-	.red {
-		color: #ff0000;
+.handle-input {
+  width: 200px;
+  display: inline-block;
+}
 
-	}
+.table-container {
+  margin-top: 15px;
+}
 
-	.yel {
-		background-color: #ffaa00;
+.table {
+  width: 100%;
+  font-size: 14px;
+}
 
-	}
+/* 表格行悬停效果 */
+:deep(.el-table__row:hover) {
+  background-color: #f5f7fa;
+}
 
-	.bgred {
-		background-color: #ff6d53;
-	}
+/* 表格头部样式 */
+:deep(.el-table__header th) {
+  background-color: #fafafa;
+  font-weight: 600;
+  color: #303133;
+}
 
-	.mr10 {
-		margin-right: 10px;
-	}
+.pagination {
+  margin-top: 20px;
+  text-align: right;
+}
 
-	.table-td-thumb {
-		display: block;
-		margin: auto;
-		width: 40px;
-		height: 40px;
-	}
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  color: #909399;
+}
 
-	.li {
-		display: inline;
-		/* display: inline-block; */
-		margin-right: 10px;
-		/* list-style: none; */
-		/* CSS注释：加list-style:none去掉li默认产生”点“ */
-	}
+.loading-text {
+  margin-top: 10px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 15px;
+}
+
+/* 角色标签样式 */
+.role-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.role-tag {
+  margin-bottom: 5px;
+}
+
+.no-role {
+  color: #909399;
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* 按钮样式优化 */
+:deep(.el-button--primary) {
+  background-color: #409eff;
+  border-color: #409eff;
+}
+
+:deep(.el-button--primary:hover) {
+  background-color: #66b1ff;
+  border-color: #66b1ff;
+}
+
+/* 权限树样式 */
+:deep(.el-tree) {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .permission-management {
+    padding: 10px;
+  }
+  
+  .container {
+    padding: 10px;
+  }
+  
+  .handle-input {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .search-box {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .table {
+    font-size: 12px;
+  }
+  
+  .pagination {
+    text-align: center;
+  }
+  
+  .role-list {
+    justify-content: center;
+  }
+}
+
+.mr10 {
+  margin-right: 10px;
+}
 </style>
