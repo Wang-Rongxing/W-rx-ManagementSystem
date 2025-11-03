@@ -39,6 +39,11 @@ public class OrderDto {
     private String roomNumber;
 
     /**
+     * 客房类型（单人间/双人间）
+     */
+    private String roomType;
+
+    /**
      * 预计入住日期
      */
     private LocalDateTime checkInDate;
