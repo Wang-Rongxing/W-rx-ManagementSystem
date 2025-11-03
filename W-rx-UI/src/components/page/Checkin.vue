@@ -35,6 +35,7 @@
         <el-table-column prop="checkInId" label="登记ID" width="100"></el-table-column>
         <el-table-column prop="customerName" label="客户姓名" width="150"></el-table-column>
         <el-table-column prop="customerPhone" label="客户电话" width="180"></el-table-column>
+        <el-table-column prop="roomType" label="客房类型" width="180"></el-table-column>
         <el-table-column prop="roomNumber" label="客房编号" width="150"></el-table-column>
         <el-table-column prop="actualCheckIn" label="入住日期" width="200" :formatter="formatDate"></el-table-column>
         <el-table-column prop="actualCheckOut" label="退房日期" width="200" :formatter="formatDate"></el-table-column>

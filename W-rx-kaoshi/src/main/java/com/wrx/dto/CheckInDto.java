@@ -34,6 +34,11 @@ public class CheckInDto {
     private String customerPhone;
 
     /**
+     * 客房类型（单人间/双人间）
+     */
+    private String roomType;
+
+    /**
      * 客房编号
      */
     private String roomNumber;

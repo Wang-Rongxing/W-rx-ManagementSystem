@@ -102,6 +102,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
             if (checkInItem.getRoomId() != null) {
                 Room room = roomMapper.selectById(checkInItem.getRoomId());
                 if (room != null) {
+                    checkInDto.setRoomType(room.getRoomType());
                     checkInDto.setRoomNumber(room.getRoomNumber());
                 }
             }
