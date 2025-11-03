@@ -152,7 +152,7 @@ export default {
   data() {
     // 账号验证规则
     const validateCustomerId = (rule, value, callback) => {
-      const reg = /^[0-9]*$/;
+      const reg = /^[a-zA-Z0-9]*$/;
       if (!reg.test(value)) {
         callback(new Error('账号必须是数字符号'));
       } else {

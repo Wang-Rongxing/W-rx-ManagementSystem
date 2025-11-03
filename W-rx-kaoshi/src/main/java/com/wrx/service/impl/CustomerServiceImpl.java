@@ -164,4 +164,11 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         // 保存客户信息
         return this.save(customer);
     }
+    
+    @Override
+    public Customer getCustomerById(String customerId) {
+        LambdaQueryWrapper<Customer> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Customer::getCustomerId, customerId);
+        return this.getOne(queryWrapper);
+    }
 }
