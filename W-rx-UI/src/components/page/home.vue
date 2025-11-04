@@ -68,10 +68,10 @@ export default {
         },
         {
           id: 4,
-          name: "标准间",
+          name: "单人",
           price: 120,
           review: 1933,
-          image: require("../../assets/img/biaozhunjian.jpg"),
+          image: require("../../assets/img/danrenjian.jpg"),
         },
       ],
     };
