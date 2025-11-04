@@ -248,58 +248,90 @@ export default {
 <template>
   <div class="profile-page">
     <div class="profile-container">
-      <div class="profile-form" v-loading="loading">
-        <!-- 头像部分 -->
-        <div class="avatar-section">
-          <div class="avatar-wrapper" @click="chooseAvatar">
-            <img src="../../assets/img/img.jpg" alt="用户头像" class="user-avatar" />
+      <div class="profile-card" v-loading="loading">
+        <!-- 卡片头部 -->
+        <div class="card-header">
+          <h2 class="card-title">个人信息</h2>
+          <div class="card-subtitle">管理您的个人资料和账户设置</div>
+        </div>
+        
+        <!-- 卡片内容 -->
+        <div class="card-body">
+          <!-- 头像部分 -->
+          <div class="avatar-section">
+            <div class="avatar-wrapper" @click="chooseAvatar">
+              <img src="../../assets/img/img.jpg" alt="用户头像" class="user-avatar" />
+              <div class="avatar-overlay">
+                <span class="avatar-text">更换头像</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 表单部分 -->
+          <div class="form-section">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-text">用户名</span>
+                  <span class="label-desc">账号登录名</span>
+                </label>
+                <input 
+                  type="text" 
+                  v-model="userInfo.customerId"
+                  class="form-input" 
+                  readonly
+                  :class="{ 'form-input-readonly': true }"
+                />
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-text">姓名</span>
+                  <span class="label-desc">请输入真实姓名</span>
+                </label>
+                <input 
+                  type="text" 
+                  v-model="userInfo.name" 
+                  class="form-input"
+                  placeholder="请输入姓名"
+                  maxlength="20"
+                />
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-text">电话</span>
+                  <span class="label-desc">用于接收订单通知</span>
+                </label>
+                <input 
+                  type="tel" 
+                  v-model="userInfo.phone" 
+                  class="form-input"
+                  placeholder="请输入手机号码"
+                  maxlength="11"
+                />
+              </div>
+            </div>
           </div>
         </div>
         
-        <!-- 表单部分 -->
-        <div class="form-section">
-          <div class="form-group">
-            <label>用户名</label>
-            <input 
-              type="text" 
-              v-model="userInfo.customerId"
-              class="form-input" 
-              readonly
-            />
-          </div>
-          
-          <div class="form-group">
-            <label>姓名</label>
-            <input 
-              type="text" 
-              v-model="userInfo.name" 
-              class="form-input"
-              placeholder="请输入姓名"
-            />
-          </div>
-          
-          <div class="form-group">
-            <label>电话</label>
-            <input 
-              type="tel" 
-              v-model="userInfo.phone" 
-              class="form-input"
-              placeholder="请输入手机号码"
-            />
-          </div>
-          
-
-          
-          <!-- 按钮部分 -->
+        <!-- 卡片底部 -->
+        <div class="card-footer">
           <div class="form-actions">
             <button 
-              class="btn-save" 
+              class="btn btn-save" 
               @click="saveProfile" 
               :disabled="isSubmitting"
             >
+              <i class="btn-icon save-icon"></i>
               {{ isSubmitting ? '保存中...' : '保存' }}
             </button>
-            <button class="btn-password" @click="changePassword">
+            <button class="btn btn-password" @click="changePassword">
+              <i class="btn-icon password-icon"></i>
               修改密码
             </button>
           </div>
@@ -308,41 +340,56 @@ export default {
     </div>
       
     <!-- 修改密码弹窗 -->
-    <div class="password-dialog" v-if="passwordVisible">
+    <div class="password-dialog" v-if="passwordVisible" @click.self="closePasswordDialog">
       <div class="dialog-mask" @click="closePasswordDialog"></div>
       <div class="dialog-content">
         <div class="dialog-header">
-          <h3>修改密码</h3>
-          <button class="dialog-close" @click="closePasswordDialog">&times;</button>
+          <h3 class="dialog-title">修改密码</h3>
+          <button class="dialog-close" @click="closePasswordDialog" title="关闭">
+            <svg class="close-icon" viewBox="0 0 16 16" width="16" height="16">
+              <path fill="currentColor" d="M8.94 8.94a1.5 1.5 0 1 1-2.121-2.122 1.5 1.5 0 0 1 2.122 2.122zm.534-.536a.5.5 0 0 0-.707 0L5.707 10.707a.5.5 0 0 0 .707.707L8.5 8.707l2.086 2.086a.5.5 0 0 0 .707-.707L9.207 8l2.086-2.086a.5.5 0 0 0-.707-.707L8.5 7.293 6.414 5.207a.5.5 0 1 0-.707.707L7.793 8l-2.086 2.086a.5.5 0 0 0 .707.707L8.5 8.707l2.086 2.086a.5.5 0 0 0 .707-.707L9.47 8.404z"/>
+            </svg>
+          </button>
         </div>
         
         <div class="dialog-body">
           <form ref="passwordForm">
             <div class="form-group">
-              <label>新密码</label>
+              <label class="form-label dialog-label">新密码</label>
               <input 
                 type="password" 
                 v-model="passwordForm.newPassword" 
-                class="form-input"
+                class="form-input dialog-input"
                 placeholder="请输入新密码（6-20位字母、数字、下划线）"
+                maxlength="20"
               />
             </div>
             
             <div class="form-group">
-              <label>确认新密码</label>
+              <label class="form-label dialog-label">确认新密码</label>
               <input 
                 type="password" 
                 v-model="passwordForm.confirmPassword" 
-                class="form-input"
+                class="form-input dialog-input"
                 placeholder="请再次输入新密码"
+                maxlength="20"
               />
+            </div>
+            
+            <div class="password-tips">
+              <span class="tip-text">密码建议：</span>
+              <ul class="tip-list">
+                <li>长度在6-20个字符之间</li>
+                <li>包含字母、数字或特殊字符</li>
+                <li>不要使用过于简单的密码</li>
+              </ul>
             </div>
           </form>
         </div>
         
         <div class="dialog-footer">
-          <button class="btn-cancel" @click="closePasswordDialog">取消</button>
-          <button class="btn-confirm" @click="submitPasswordChange">确定</button>
+          <button class="btn btn-cancel" @click="closePasswordDialog">取消</button>
+          <button class="btn btn-confirm" @click="submitPasswordChange">确定</button>
         </div>
       </div>
     </div>
@@ -354,29 +401,63 @@ export default {
 .profile-page {
   width: 100%;
   min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 20px;
+  padding: 40px 20px;
   box-sizing: border-box;
 }
 
 .profile-container {
-  min-height: calc(100vh - 60px);
+  width: 100%;
+  max-width: 800px;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f5f7fa;
-  padding: 20px;
 }
 
-.profile-form {
+/* 卡片样式 */
+.profile-card {
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
   width: 100%;
-  max-width: 600px;
+  transform: translateY(0);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+}
+
+/* 卡片头部 */
+.card-header {
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  color: white;
+  padding: 30px 40px;
+  text-align: center;
+}
+
+.card-title {
+  margin: 0 0 10px 0;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.card-subtitle {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+  letter-spacing: 0.3px;
+}
+
+/* 卡片内容 */
+.card-body {
+  padding: 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -384,86 +465,159 @@ export default {
 
 /* 头像部分 */
 .avatar-section {
-  margin-bottom: 30px;
+  margin-bottom: 40px;
+  position: relative;
+  transform: translateY(-70px);
+  z-index: 1;
 }
 
 .avatar-wrapper {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid #e4e7ed;
-  transition: border-color 0.3s;
+  border: 4px solid #fff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
 }
 
 .avatar-wrapper:hover {
-  border-color: #409eff;
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-wrapper:hover .avatar-overlay {
+  opacity: 1;
 }
 
 .user-avatar {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.avatar-wrapper:hover .user-avatar {
+  transform: scale(1.1);
+}
+
+.avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.avatar-text {
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.4;
 }
 
 /* 表单部分 */
 .form-section {
   width: 100%;
+  max-width: 500px;
+  transform: translateY(-30px);
+}
+
+.form-row {
+  margin-bottom: 24px;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  position: relative;
 }
 
-.form-group label {
+.form-label {
   display: block;
   margin-bottom: 8px;
-  font-weight: 500;
+}
+
+.label-text {
+  display: block;
+  font-weight: 600;
   color: #303133;
-  font-size: 14px;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.label-desc {
+  display: block;
+  font-size: 12px;
+  color: #909399;
+  font-weight: 400;
 }
 
 .form-input {
   width: 100%;
-  height: 40px;
-  padding: 0 15px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #606266;
+  height: 48px;
+  padding: 0 16px;
+  border: 2px solid #e4e7ed;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #303133;
   background-color: #fff;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .form-input:focus {
   outline: none;
   border-color: #409eff;
+  box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.1);
 }
 
-.form-input:read-only {
-  background-color: #f5f7fa;
+.form-input::placeholder {
+  color: #c0c4cc;
+}
+
+.form-input-readonly {
+  background-color: #f8f9fa;
+  color: #909399;
   cursor: not-allowed;
+  border-color: #dcdfe6;
+}
+
+/* 卡片底部 */
+.card-footer {
+  background-color: #fafafa;
+  padding: 24px 40px;
+  border-top: 1px solid #ebeef5;
 }
 
 /* 按钮部分 */
 .form-actions {
   display: flex;
   gap: 16px;
-  margin-top: 30px;
+  justify-content: center;
 }
 
-.btn-save,
-.btn-password {
-  height: 40px;
-  padding: 0 20px;
-  border-radius: 4px;
-  font-size: 14px;
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   border: none;
+  gap: 8px;
+  letter-spacing: 0.5px;
 }
 
 .btn-save {
@@ -473,44 +627,44 @@ export default {
 
 .btn-save:hover:not(:disabled) {
   background-color: #66b1ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
 }
 
 .btn-save:disabled {
   background-color: #c0c4cc;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .btn-password {
   background-color: #fff;
   color: #409eff;
-  border: 1px solid #dcdfe6;
+  border: 2px solid #409eff;
 }
 
 .btn-password:hover {
-  color: #66b1ff;
-  border-color: #c6e2ff;
-  background-color: #ecf5ff;
+  color: #fff;
+  background-color: #409eff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .profile-form {
-    padding: 30px 20px;
-  }
-  
-  .avatar-wrapper {
-    width: 80px;
-    height: 80px;
-  }
-  
-  .form-actions {
-    flex-direction: column;
-  }
-  
-  .btn-save,
-  .btn-password {
-    width: 100%;
-  }
+.btn-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+}
+
+/* 保存图标样式 */
+.save-icon::before {
+  content: '💾';
+}
+
+/* 密码图标样式 */
+.password-icon::before {
+  content: '🔒';
 }
 
 /* 修改密码弹窗样式 */
@@ -524,6 +678,16 @@ export default {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .dialog-mask {
@@ -533,116 +697,219 @@ export default {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  animation: maskFadeIn 0.3s ease;
+}
+
+@keyframes maskFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .dialog-content {
   position: relative;
   width: 100%;
-  max-width: 500px;
+  max-width: 540px;
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
   overflow: hidden;
+  animation: slideUp 0.3s ease;
+  margin: 20px;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dialog-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
+  padding: 24px 28px;
   border-bottom: 1px solid #ebeef5;
+  background-color: #fafafa;
 }
 
-.dialog-header h3 {
+.dialog-title {
   margin: 0;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 20px;
+  font-weight: 600;
   color: #303133;
 }
 
 .dialog-close {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: none;
   background: none;
-  font-size: 24px;
   color: #909399;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: all 0.3s;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 .dialog-close:hover {
   background-color: #f5f7fa;
   color: #606266;
+  transform: rotate(90deg);
+}
+
+.close-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .dialog-body {
-  padding: 24px;
+  padding: 30px 28px;
 }
 
-.dialog-body .form-group {
-  margin-bottom: 20px;
+.dialog-label {
+  margin-bottom: 10px;
+}
+
+.dialog-input {
+  height: 46px;
+  padding: 0 16px;
+  border: 2px solid #e4e7ed;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.password-tips {
+  margin-top: 20px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #409eff;
+}
+
+.tip-text {
+  display: block;
+  font-weight: 600;
+  color: #303133;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.tip-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: #606266;
+  line-height: 1.8;
+}
+
+.tip-list li {
+  margin-bottom: 4px;
 }
 
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding: 16px 24px;
+  padding: 20px 28px;
   border-top: 1px solid #ebeef5;
   gap: 12px;
-}
-
-.btn-cancel,
-.btn-confirm {
-  height: 36px;
-  padding: 0 20px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-  border: 1px solid #dcdfe6;
+  background-color: #fafafa;
 }
 
 .btn-cancel {
   background-color: #fff;
   color: #606266;
+  border: 2px solid #dcdfe6;
 }
 
 .btn-cancel:hover {
   color: #409eff;
-  border-color: #c6e2ff;
-  background-color: #ecf5ff;
+  border-color: #409eff;
+  background-color: #f5f7ff;
+  transform: translateY(-1px);
 }
 
 .btn-confirm {
   background-color: #409eff;
   color: #fff;
-  border-color: #409eff;
+  border: 2px solid #409eff;
 }
 
 .btn-confirm:hover {
   background-color: #66b1ff;
-  border-color: #66b1ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
 }
 
-/* 响应式弹窗样式 */
+/* 响应式设计 */
 @media (max-width: 768px) {
+  .profile-page {
+    padding: 20px 10px;
+  }
+  
+  .card-header {
+    padding: 24px 20px;
+  }
+  
+  .card-title {
+    font-size: 24px;
+  }
+  
+  .card-body {
+    padding: 30px 20px;
+  }
+  
+  .avatar-wrapper {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .form-section {
+    max-width: 100%;
+  }
+  
+  .form-input {
+    height: 44px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+  
+  .card-footer {
+    padding: 20px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    height: 44px;
+    padding: 0 20px;
+  }
+  
   .dialog-content {
-    width: 90%;
-    margin: 0 auto;
+    margin: 10px;
   }
   
   .dialog-header,
   .dialog-body,
   .dialog-footer {
-    padding: 16px;
+    padding: 20px;
   }
   
   .dialog-footer {
@@ -654,4 +921,83 @@ export default {
     width: 100%;
   }
 }
+
+@media (max-width: 480px) {
+  .card-title {
+    font-size: 20px;
+  }
+  
+  .avatar-section {
+    transform: translateY(-60px);
+  }
+  
+  .avatar-wrapper {
+    width: 90px;
+    height: 90px;
+    border-width: 3px;
+  }
+  
+  .form-section {
+    transform: translateY(-20px);
+  }
+  
+  .dialog-title {
+    font-size: 18px;
+  }
+}
+
+/* 动画效果 */
+.form-input,
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.form-input::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.form-input:focus::after {
+  animation: ripple 0.5s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(200, 200);
+    opacity: 0;
+  }
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.btn:hover::after {
+  animation: ripple 0.5s ease-out;
+}
+</style>
 </style>
