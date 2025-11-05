@@ -12,17 +12,24 @@ export default {
       },
       isSubmitting: false,
       loading: false,
+      phoneError: false,
+      phoneErrorMessage: ''
+      ,
       // 密码修改相关数据
       passwordVisible: false,
       passwordForm: {
         newPassword: '',
         confirmPassword: ''
       },
+      newPasswordError: false,
+      newPasswordErrorMessage: '',
+      confirmPasswordError: false,
+      confirmPasswordErrorMessage: '',
       passwordRules: {
         newPassword: [
           { required: true, message: '请输入新密码', trigger: 'blur' },
-          { min: 6, max: 20, message: '密码长度在6-20个字符之间', trigger: 'blur' },
-          { pattern: /^[a-zA-Z0-9_\-\.]{6,20}$/, message: '密码只能包含字母、数字、下划线、横线和点', trigger: 'blur' }
+          { min: 6, max: 18, message: '密码长度在6-18个字符之间', trigger: 'blur' },
+          { pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,18}$/, message: '密码只能包含字母和数字', trigger: 'blur' }
         ],
         confirmPassword: [
           { required: true, message: '请确认新密码', trigger: 'blur' },
@@ -95,8 +102,8 @@ export default {
         return;
       }
       
-      if (!this.userInfo.phone || !/^1[3-9]\d{9}$/.test(this.userInfo.phone)) {
-        this.$message.error('请输入正确的手机号码');
+      // 执行电话验证
+      if (!this.validatePhone()) {
         return;
       }
 
@@ -143,7 +150,53 @@ export default {
       }
     },
     
+    // 验证密码格式
+    validatePassword() {
+      this.newPasswordError = false;
+      this.newPasswordErrorMessage = '';
+      
+      if (!this.passwordForm.newPassword) {
+        this.newPasswordError = true;
+        this.newPasswordErrorMessage = '请输入新密码';
+        return false;
+      }
+      
+      if (this.passwordForm.newPassword.length < 6 || this.passwordForm.newPassword.length > 18) {
+        this.newPasswordError = true;
+        this.newPasswordErrorMessage = '密码长度在6-18个字符之间';
+        return false;
+      }
+      
+      if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,18}$/.test(this.passwordForm.newPassword)) {
+        this.newPasswordError = true;
+        this.newPasswordErrorMessage = '密码必须同时包含字母和数字';
+        return false;
+      }
+      
+      return true;
+    },
+    
     // 验证确认密码
+    validateConfirm() {
+      this.confirmPasswordError = false;
+      this.confirmPasswordErrorMessage = '';
+      
+      if (!this.passwordForm.confirmPassword) {
+        this.confirmPasswordError = true;
+        this.confirmPasswordErrorMessage = '请确认新密码';
+        return false;
+      }
+      
+      if (this.passwordForm.confirmPassword !== this.passwordForm.newPassword) {
+        this.confirmPasswordError = true;
+        this.confirmPasswordErrorMessage = '两次输入的密码不一致';
+        return false;
+      }
+      
+      return true;
+    },
+    
+    // 验证确认密码(表单规则)
     validateConfirmPassword(rule, value, callback) {
       if (value === '') {
         callback(new Error('请确认新密码'));
@@ -160,7 +213,12 @@ export default {
         newPassword: '',
         confirmPassword: ''
       };
-      // 重置表单验证状态
+      // 重置表单验证状态和错误信息
+      this.newPasswordError = false;
+      this.newPasswordErrorMessage = '';
+      this.confirmPasswordError = false;
+      this.confirmPasswordErrorMessage = '';
+      
       if (this.$refs.passwordForm) {
         this.$refs.passwordForm.resetFields();
       }
@@ -177,29 +235,12 @@ export default {
     
     // 提交密码修改
     async submitPasswordChange() {
-      // 执行基本的表单验证
-      if (!this.passwordForm.newPassword) {
-        this.$message.error('请输入新密码');
+      // 执行统一的表单验证
+      if (!this.validatePassword()) {
         return;
       }
       
-      if (this.passwordForm.newPassword.length < 6 || this.passwordForm.newPassword.length > 20) {
-        this.$message.error('密码长度在6-20个字符之间');
-        return;
-      }
-      
-      if (!/^[a-zA-Z0-9_\-\.]{6,20}$/.test(this.passwordForm.newPassword)) {
-        this.$message.error('密码只能包含字母、数字、下划线、横线和点');
-        return;
-      }
-      
-      if (!this.passwordForm.confirmPassword) {
-        this.$message.error('请确认新密码');
-        return;
-      }
-      
-      if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
-        this.$message.error('两次输入的密码不一致');
+      if (!this.validateConfirm()) {
         return;
       }
       
@@ -240,6 +281,26 @@ export default {
     chooseAvatar() {
       // 这里可以实现文件上传功能
       this.$message.info('头像上传功能开发中');
+    },
+    
+    // 验证电话号码
+    validatePhone() {
+      this.phoneError = false;
+      this.phoneErrorMessage = '';
+      
+      if (!this.userInfo.phone) {
+        this.phoneError = true;
+        this.phoneErrorMessage = '请输入手机号';
+        return false;
+      }
+      
+      if (!/^1[3-9]\d{9}$/.test(this.userInfo.phone)) {
+        this.phoneError = true;
+        this.phoneErrorMessage = '请输入正确的手机号码';
+        return false;
+      }
+      
+      return true;
     }
   }
 };
@@ -267,8 +328,8 @@ export default {
             </div>
           </div>
           
-          <!-- 表单部分 -->
-          <div class="form-section">
+        <!-- 表单部分 -->
+        <div class="form-section">
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">
@@ -311,9 +372,12 @@ export default {
                   type="tel" 
                   v-model="userInfo.phone" 
                   class="form-input"
+                  :class="{ 'form-input-error': phoneError }"
                   placeholder="请输入手机号码"
                   maxlength="11"
+                  @blur="validatePhone"
                 />
+                <div v-if="phoneError" class="error-message">{{ phoneErrorMessage }}</div>
               </div>
             </div>
           </div>
@@ -357,12 +421,16 @@ export default {
             <div class="form-group">
               <label class="form-label dialog-label">新密码</label>
               <input 
-                type="password" 
-                v-model="passwordForm.newPassword" 
-                class="form-input dialog-input"
-                placeholder="请输入新密码（6-20位字母、数字、下划线）"
-                maxlength="20"
-              />
+                  type="password" 
+                  v-model="passwordForm.newPassword" 
+                  class="form-input dialog-input"
+                  :class="{ 'form-input-error': newPasswordError }"
+                  placeholder="请输入新密码（6-18位，必须同时包含字母和数字）"
+                   maxlength="18"
+                  @blur="validatePassword"
+                  @input="validatePassword"
+                />
+              <div v-if="newPasswordError" class="error-message">{{ newPasswordErrorMessage }}</div>
             </div>
             
             <div class="form-group">
@@ -371,16 +439,20 @@ export default {
                 type="password" 
                 v-model="passwordForm.confirmPassword" 
                 class="form-input dialog-input"
+                :class="{ 'form-input-error': confirmPasswordError }"
                 placeholder="请再次输入新密码"
-                maxlength="20"
+                maxlength="18"
+                @blur="validateConfirm"
+                @input="validateConfirm"
               />
+              <div v-if="confirmPasswordError" class="error-message">{{ confirmPasswordErrorMessage }}</div>
             </div>
             
             <div class="password-tips">
               <span class="tip-text">密码建议：</span>
               <ul class="tip-list">
-                <li>长度在6-20个字符之间</li>
-                <li>包含字母、数字或特殊字符</li>
+                <li>长度在6-18个字符之间</li>
+                <li>必须同时包含字母和数字</li>
                 <li>不要使用过于简单的密码</li>
               </ul>
             </div>
@@ -526,17 +598,43 @@ export default {
 }
 
 /* 表单部分 */
-.form-section {
-  width: 100%;
-  max-width: 500px;
-  transform: translateY(-30px);
-}
-
-.form-row {
-  margin-bottom: 24px;
-}
-
-.form-group {
+  .form-section {
+    width: 100%;
+    max-width: 500px;
+    transform: translateY(-30px);
+  }
+  
+  /* 表单行样式 */
+  .form-row {
+    margin-bottom: 24px;
+  }
+  
+  /* 表单组样式 */
+  .form-group {
+    position: relative;
+  }
+  
+  /* 表单输入错误状态 */
+  .form-input-error {
+    border-color: #f56c6c !important;
+    box-shadow: 0 0 0 2px rgba(245, 108, 108, 0.2) !important;
+  }
+  
+  .form-input-error:focus {
+    border-color: #f56c6c !important;
+    box-shadow: 0 0 0 2px rgba(245, 108, 108, 0.3) !important;
+  }
+  
+  /* 错误提示样式 */
+  .error-message {
+    color: #f56c6c;
+    font-size: 12px;
+    line-height: 1;
+    padding-top: 4px;
+  }
+  
+  /* 重新添加form-group样式以确保完整性 */
+  .form-group {
   position: relative;
 }
 
