@@ -176,6 +176,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
                 Room room = roomMapper.selectOne(roomQueryWrapper);
                 if (room != null) {
                     orderDto.setRoomNumber(room.getRoomNumber());
+                    orderDto.setRoomType(room.getRoomType());
                 }
             }
             

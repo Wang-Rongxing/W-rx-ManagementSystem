@@ -1098,4 +1098,3 @@ export default {
   animation: ripple 0.5s ease-out;
 }
 </style>
-</style>

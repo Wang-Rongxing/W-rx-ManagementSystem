@@ -96,9 +96,6 @@
         <el-form-item label="账号:" prop="customerId">
           <el-input v-model="form.customerId" placeholder="请输入客户账号" disabled></el-input>
         </el-form-item>
-        <el-form-item label="密码:" prop="password">
-          <el-input v-model="form.password" type="password" placeholder="请输入密码"></el-input>
-        </el-form-item>
         <el-form-item label="电话:" prop="phone">
           <el-input v-model="form.phone" placeholder="请输入联系电话"></el-input>
         </el-form-item>
@@ -152,7 +149,7 @@ export default {
   data() {
     // 账号验证规则 - 必须是4-8位字母
     const validateCustomerId = (rule, value, callback) => {
-      const reg = /^[a-zA-Z]{4,8}$/;
+      const reg = /^[a-zA-Z]{3,8}$/;
       if (!reg.test(value)) {
         callback(new Error('账号必须是4-8位字母'));
       } else {

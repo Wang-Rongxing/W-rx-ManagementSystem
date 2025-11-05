@@ -126,7 +126,7 @@ export default {
   data() {
     // 工号验证规则 - 必须是6位数字
     const validateEmployeeId = (rule, value, callback) => {
-      const reg = /^\d{6}$/;
+      const reg = /^\d{12}$/;
       if (!reg.test(value)) {
         callback(new Error('工号必须是6位数字'));
       } else {
