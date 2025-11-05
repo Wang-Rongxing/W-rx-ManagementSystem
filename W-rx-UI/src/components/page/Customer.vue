@@ -150,11 +150,21 @@ import {
 export default {
   name: 'Customer',
   data() {
-    // 账号验证规则
+    // 账号验证规则 - 必须是4-8位字母
     const validateCustomerId = (rule, value, callback) => {
-      const reg = /^[a-zA-Z0-9]*$/;
+      const reg = /^[a-zA-Z]{4,8}$/;
       if (!reg.test(value)) {
-        callback(new Error('账号必须是数字符号'));
+        callback(new Error('账号必须是4-8位字母'));
+      } else {
+        callback();
+      }
+    };
+    
+    // 密码验证规则 - 必须是6-18位且包含字母和数字
+    const validatePassword = (rule, value, callback) => {
+      const reg = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,18}$/;
+      if (!reg.test(value)) {
+        callback(new Error('密码必须包含字母和数字，长度6-18位'));
       } else {
         callback();
       }
@@ -230,19 +240,22 @@ export default {
           }
         ],
         password: [
+            {
+              required: true,
+              message: '请输入密码',
+              trigger: 'blur'
+            },
+            {
+              validator: validatePassword,
+              trigger: 'blur'
+            }
+          ],
+        phone: [
           {
             required: true,
-            message: '请输入密码',
+            message: '请输入手机号',
             trigger: 'blur'
           },
-          {
-            min: 6,
-            max: 20,
-            message: '密码长度应在6-20个字符之间',
-            trigger: 'blur'
-          }
-        ],
-        phone: [
           {
             validator: validatePhone,
             trigger: 'blur'
