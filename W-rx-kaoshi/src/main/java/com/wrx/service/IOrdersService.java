@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.wrx.entity.Orders;
 
 import java.util.Map;
+import java.time.LocalDate;
 
 /**
  * <p>
@@ -47,5 +48,15 @@ public interface IOrdersService extends IService<Orders> {
      * @return 是否成功
      */
     boolean checkIn(Integer orderId);
+    
+    /**
+     * 添加订单
+     * @param customerId 客户ID
+     * @param roomNumber 房间号
+     * @param checkInDate 入住日期
+     * @param checkOutDate 退房日期
+     * @return 是否成功
+     */
+    boolean addOrder(String customerId, String roomNumber, LocalDate checkInDate, LocalDate checkOutDate);
 
 }

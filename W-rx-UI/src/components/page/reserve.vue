@@ -87,11 +87,25 @@
         <el-form-item label="客房价格" prop="price">
           <el-input v-model="formData.price" disabled />
         </el-form-item>
-        <el-form-item label="客户姓名" prop="customerName">
-          <el-input v-model="formData.customerName" placeholder="请输入客户姓名" />
+        <el-form-item label="入住日期" prop="checkInDate">
+          <el-date-picker
+            v-model="formData.checkInDate"
+            type="date"
+            placeholder="选择入住日期"
+            style="width: 100%"
+            format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd"
+          />
         </el-form-item>
-        <el-form-item label="客户电话" prop="customerPhone">
-          <el-input v-model="formData.customerPhone" placeholder="请输入客户电话" />
+        <el-form-item label="退房日期" prop="checkOutDate">
+          <el-date-picker
+            v-model="formData.checkOutDate"
+            type="date"
+            placeholder="选择退房日期"
+            style="width: 100%"
+            format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd"
+          />
         </el-form-item>
 
       </el-form>
@@ -115,6 +129,7 @@ export default {
   name: 'Reserve',
   data() {
     return {
+      user: JSON.parse(sessionStorage.getItem('user')),
       dialogVisible: false,
       submitting: false,
       orderNo: '',
@@ -122,16 +137,29 @@ export default {
       formData: {
         roomType: '',
         price: '',
-        customerName: '',
-        customerPhone: ''
+        checkInDate: '',
+        checkOutDate: ''
       },
       rules: {
-        customerName: [
-          { required: true, message: '请输入客户姓名', trigger: 'blur' }
+        checkInDate: [
+          { required: true, message: '请选择入住日期', trigger: 'change' }
         ],
-        customerPhone: [
-          { required: true, message: '请输入客户电话', trigger: 'blur' },
-          { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号格式', trigger: 'blur' }
+        checkOutDate: [
+          { required: true, message: '请选择退房日期', trigger: 'change' },
+          {
+            validator: (rule, value, callback) => {
+              if (value && this.formData.checkInDate) {
+                if (new Date(value) <= new Date(this.formData.checkInDate)) {
+                  callback(new Error('退房日期必须晚于入住日期'));
+                } else {
+                  callback();
+                }
+              } else {
+                callback();
+              }
+            },
+            trigger: 'change'
+          }
         ]
       },
       // 模拟客房数据 - 添加图片加载状态标记
@@ -222,8 +250,8 @@ export default {
       this.formData = {
         roomType: room.roomType,
         price: room.price,
-        customerName: '',
-        customerPhone: ''
+        checkInDate: '',
+        checkOutDate: ''
       };
       
       // 显示对话框，并添加淡入效果
@@ -241,33 +269,28 @@ export default {
           try {
             // 模拟API调用 - 使用setTimeout模拟网络延迟
             setTimeout(() => {
-              // 生成订单号
-              this.orderNo = 'ORD' + Date.now();
-              
-              this.submitting = false;
-              this.dialogVisible = false;
-              
-              // 使用Element UI的messagebox组件显示成功信息
-              this.$alert(
-                `<div class="success-message">
-                  <div class="success-icon">✓</div>
-                  <p class="success-title">您的订单已提交成功！</p>
-                  <p class="success-order">订单号：<span class="order-no">${this.orderNo}</span></p>
-                  <p class="success-hint">请妥善保存订单号以便查询</p>
-                </div>`,
-                '预定成功',
-                {
-                  confirmButtonText: '确定',
-                  type: 'success',
-                  dangerouslyUseHTMLString: true,
-                  customClass: 'success-dialog'
-                }
-              );
-              
-              // 移除了剩余房间数量的处理
-              
-              // 清空表单数据
-              this.$refs.formRef.resetFields();
+              ajaxPost('orders/add',{
+                customerId: this.user.employeeId,
+                roomNumber: this.selectedRoom.roomNumber,
+                checkInDate: this.formData.checkInDate,
+                checkOutDate: this.formData.checkOutDate})
+                  .then(res => {
+                    this.submitting = false;
+                    
+                    if (res) {
+                      // 隐藏对话框
+                      this.dialogVisible = false;
+                      this.$message.success('提交订单成功');
+                      this.selectbyidandtypeandstatus();
+                    } else {
+                      this.$message.error('预定失败，请稍后重试');
+                    }
+                  })
+                  .catch(err => {
+                    this.submitting = false;
+                    console.error('预定失败:', err);
+                    this.$message.error('网络错误，请检查网络连接');
+                  })
               
             }, 1000);
           } catch (error) {

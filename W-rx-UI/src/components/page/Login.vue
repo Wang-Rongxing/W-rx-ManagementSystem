@@ -46,7 +46,7 @@
 				rules: {
 					employeeId: [{
 						required: true,
-						message: '请输入工号',
+						message: '请输入账号',
 						trigger: 'blur'
 					}],
 					password: [{
@@ -219,7 +219,7 @@
             			// this.$store.commit('setFlag', true);
             			getDynamicMenu();
             			// console.log(res.roles);
-            			this.$message.success('登录成功');
+            			//this.$message.success('登录成功');
             			//console.log(localStorage.getItem("user"));
             			//localStorage.setItem("ms_username",res.data.username);
             			this.$router.push('/HomeUser/home');

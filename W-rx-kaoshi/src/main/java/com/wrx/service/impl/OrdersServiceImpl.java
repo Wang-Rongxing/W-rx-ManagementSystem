@@ -16,7 +16,11 @@ import com.wrx.service.IOrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -267,6 +271,58 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         
         // 5. 删除订单
         return this.removeById(orderId);
+    }
+    
+    /**
+     * 添加订单
+     * 1. 根据customerId查询客户表的id
+     * 2. 根据roomNumber查询客房表的id和金额
+     * 3. 创建订单记录并存入订单表
+     * 4. 更新客房状态为已预订
+     */
+    @Override
+    @Transactional
+    public boolean addOrder(String customerId, String roomNumber, LocalDate checkInDate, LocalDate checkOutDate) {
+        // 1. 根据customerId查询客户表的id
+        QueryWrapper<Customer> customerQueryWrapper = new QueryWrapper<>();
+        customerQueryWrapper.eq("customer_id", customerId);
+        Customer customer = customerMapper.selectOne(customerQueryWrapper);
+        if (customer == null) {
+            return false;
+        }
+        Integer dbCustomerId = customer.getId();
+        
+        // 2. 根据roomNumber查询客房表的id和金额
+        QueryWrapper<Room> roomQueryWrapper = new QueryWrapper<>();
+        roomQueryWrapper.eq("room_number", roomNumber);
+        Room room = roomMapper.selectOne(roomQueryWrapper);
+        if (room == null) {
+            return false;
+        }
+        Integer roomId = room.getRoomId();
+        BigDecimal price = room.getPrice();
+        
+        // 3. 计算订单金额（根据入住天数）
+        long days = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        BigDecimal totalAmount = price.multiply(BigDecimal.valueOf(days));
+        
+        // 4. 创建订单记录并存入订单表
+        Orders order = new Orders();
+        order.setCustomerId(dbCustomerId);
+        order.setRoomId(roomId);
+        order.setCheckInDate(checkInDate.atStartOfDay());
+        order.setCheckOutDate(checkOutDate.atStartOfDay());
+        order.setAmount(totalAmount);
+        order.setCreateTime(LocalDateTime.now());
+        
+        boolean saveResult = this.save(order);
+        if (!saveResult) {
+            return false;
+        }
+        
+        // 5. 更新客房状态为已预订（2表示已预订）
+        room.setStatus(2);
+        return roomMapper.updateById(room) > 0;
     }
 
 }

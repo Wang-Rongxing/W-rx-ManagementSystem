@@ -2,9 +2,7 @@ package com.wrx.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wrx.dto.CheckInDto;
 import com.wrx.dto.OrderDto;
-import com.wrx.entity.CheckIn;
 import com.wrx.entity.Customer;
 import com.wrx.entity.Orders;
 import com.wrx.entity.Room;
@@ -13,9 +11,9 @@ import com.wrx.mapper.OrdersMapper;
 import com.wrx.mapper.RoomMapper;
 import com.wrx.service.IOrdersService;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +33,7 @@ import java.util.Map;
 public class OrdersController {
 
     @Resource
-    private IOrdersService orderService;
+    private IOrdersService ordersService;
     @Resource
     private RoomMapper roomMapper;
     @Resource
@@ -51,7 +49,7 @@ public class OrdersController {
      */
     @GetMapping("/allOrders")
     public Map<String, Object> getAllOrders(Orders orders, @RequestParam(defaultValue = "1") int pageIndex, @RequestParam(defaultValue = "10") int pageSize) {
-        return orderService.selectAllUser(orders, pageIndex, pageSize);
+        return ordersService.selectAllUser(orders, pageIndex, pageSize);
     }
 
 
@@ -72,7 +70,7 @@ public class OrdersController {
         
         try {
             // 调用自定义的取消订单方法，该方法会同时更新客房状态
-            boolean success = orderService.cancelOrder(orderId);
+            boolean success = ordersService.cancelOrder(orderId);
             if (success) {
                 result.put("code", "200");
                 result.put("message", "取消订单成功");
@@ -105,7 +103,7 @@ public class OrdersController {
         
         try {
             // 调用办理入住方法
-            boolean success = orderService.checkIn(orderId);
+            boolean success = ordersService.checkIn(orderId);
             if (success) {
                 result.put("code", "200");
                 result.put("message", "办理入住成功");
@@ -206,7 +204,7 @@ public class OrdersController {
                                                    @RequestParam(defaultValue = "1") int pageIndex, 
                                                    @RequestParam(defaultValue = "10") int pageSize) {
         try {
-            return orderService.selectbynameandphone(customerName, customerPhone, pageIndex, pageSize);
+            return ordersService.selectbynameandphone(customerName, customerPhone, pageIndex, pageSize);
         } catch (Exception e) {
             Map<String, Object> result = new HashMap<>();
             result.put("code", "500");
@@ -215,5 +213,25 @@ public class OrdersController {
             result.put("total", 0);
             return result;
         }
+    }
+    
+    /**
+     * 添加订单接口
+     * @param params 包含订单信息的参数
+     * @return 是否添加成功
+     */
+    @PostMapping("/add")
+    public boolean addOrder(@RequestBody Map<String, Object> params) {
+        String customerId = (String) params.get("customerId");
+        String roomNumber = (String) params.get("roomNumber");
+        
+        // 解析日期参数
+        String checkInDateStr = (String) params.get("checkInDate");
+        String checkOutDateStr = (String) params.get("checkOutDate");
+        
+        LocalDate checkInDate = LocalDate.parse(checkInDateStr);
+        LocalDate checkOutDate = LocalDate.parse(checkOutDateStr);
+        
+        return ordersService.addOrder(customerId, roomNumber, checkInDate, checkOutDate);
     }
 }
