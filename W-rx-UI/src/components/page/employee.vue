@@ -124,16 +124,27 @@ import {
 export default {
   name: 'Employee',
   data() {
-    // 工号验证规则
+    // 工号验证规则 - 必须是6位数字
     const validateEmployeeId = (rule, value, callback) => {
-      const reg = /^[0-9]*$/;
+      const reg = /^\d{6}$/;
       if (!reg.test(value)) {
-        callback(new Error('工号必须是数字符号'));
+        callback(new Error('工号必须是6位数字'));
       } else {
         callback();
       }
     };
     
+    // 密码验证规则 - 必须包含字母和数字，6-18位
+    const validatePassword = (rule, value, callback) => {
+      // 正则表达式：至少包含一个字母和一个数字，长度6-18位
+      const reg = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,18}$/;
+      if (!reg.test(value)) {
+        callback(new Error('密码必须包含字母和数字，长度6-18位'));
+      } else {
+        callback();
+      }
+    };
+
     // 手机号验证规则
     const validatePhone = (rule, value, callback) => {
       const reg = /^1[3-9]\d{9}$/;
@@ -201,9 +212,7 @@ export default {
             trigger: 'blur'
           },
           {
-            min: 6,
-            max: 20,
-            message: '密码长度应在6-20个字符之间',
+            validator: validatePassword,
             trigger: 'blur'
           }
         ],
