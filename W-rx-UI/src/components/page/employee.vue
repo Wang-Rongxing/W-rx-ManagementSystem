@@ -134,17 +134,6 @@ export default {
       }
     };
     
-    // 密码验证规则 - 必须包含字母和数字
-    const validatePassword = (rule, value, callback) => {
-      // 正则表达式：至少包含一个字母和一个数字
-      const reg = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,20}$/;
-      if (!reg.test(value)) {
-        callback(new Error('密码必须包含字母和数字，长度6-20位'));
-      } else {
-        callback();
-      }
-    };
-    
     // 手机号验证规则
     const validatePhone = (rule, value, callback) => {
       const reg = /^1[3-9]\d{9}$/;
@@ -212,7 +201,9 @@ export default {
             trigger: 'blur'
           },
           {
-            validator: validatePassword,
+            min: 6,
+            max: 20,
+            message: '密码长度应在6-20个字符之间',
             trigger: 'blur'
           }
         ],
