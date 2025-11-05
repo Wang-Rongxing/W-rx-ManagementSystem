@@ -189,10 +189,11 @@ export default {
       ajaxPost('/room/selectRoomByCondition', params)
           .then(res => {
             if (res && res.records) {
-              // 对每个房间的description字段进行转换
+              // 对每个房间的description字段进行转换，并直接设置imageLoaded为true以确保图片显示
               this.roomsData = (res.records || []).map(room => ({
                 ...room,
-                description: this.convertDescriptionToArray(room.description)
+                description: this.convertDescriptionToArray(room.description),
+                imageLoaded: true // 直接设置为true，确保图片显示
               }))
               this.total = res.total || 0
             }
@@ -308,9 +309,9 @@ export default {
 <style scoped>
 /* 全局样式 */
 .reserve-container {
+  min-height: calc(100vh - 60px);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
