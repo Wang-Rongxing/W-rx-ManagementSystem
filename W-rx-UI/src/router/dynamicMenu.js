@@ -93,7 +93,10 @@ export  const getDynamicMenu=()=>{
 		resetRouter (router);
 		let m= getMenu();
 		//console.log(m);
-		router.addRoutes(m);
+		//router.addRoutes(m);
+		m.forEach(route => {
+			router.addRoute(route);
+		});
 		//store.commit('setFlag', false);
 	//}
 	 	

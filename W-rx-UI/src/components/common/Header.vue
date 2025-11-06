@@ -1,7 +1,7 @@
 <template>
 	<div class="header">
 		<!-- 折叠按钮 -->
-		<div class="collapse-btn" @click="collapseChage">
+		<div class="collapse-btn" @click="collapseChange">
 			<i v-if="!collapse" class="el-icon-s-fold"></i>
 			<i v-else class="el-icon-s-unfold"></i>
 		</div>
@@ -85,7 +85,7 @@
 				}
 			},
 			// 侧边栏折叠
-			collapseChage() {
+			collapseChange() {
 				this.collapse = !this.collapse;
 				bus.$emit('collapse', this.collapse);
 			},
@@ -122,7 +122,7 @@
 		},
 		mounted() {
 			if (document.body.clientWidth < 1500) {
-				this.collapseChage();
+				this.collapseChange();
 			}
 
 
