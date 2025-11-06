@@ -69,14 +69,15 @@ public class EmployeeController {
         return userService.login(employee);
     }
     
-    //删除员工
+    //删除员工及其对应的角色关系
     @DeleteMapping("/delete/{id}")
     public boolean deleteEmployee(@PathVariable Integer id){
         if (id == null || id <= 0) {
             return false;
         }
         try {
-            return userService.removeById(id);
+            // 调用新方法同时删除员工及其对应的EmployeeRole数据
+            return userService.deleteEmployeeAndRole(id);
         } catch (Exception e) {
             // 可以添加日志记录
             return false;

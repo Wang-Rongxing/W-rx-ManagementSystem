@@ -41,4 +41,6 @@ public interface IEmployeeService extends IService<Employee> {
     boolean insertUser(Employee employee);
     //根据员工id或姓名查询员工信息
     Map<String, Object> selectEmployeeByIdOrName(Employee employee);
+    //根据id删除员工及权限
+    boolean deleteEmployeeAndRole(Integer id);
 }

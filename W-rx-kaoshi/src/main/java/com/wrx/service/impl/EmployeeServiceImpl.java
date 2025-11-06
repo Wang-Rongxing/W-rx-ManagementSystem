@@ -40,6 +40,27 @@ import java.util.Map;
  */
 @Service
 public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> implements IEmployeeService {
+    
+    /**
+     * 根据id删除员工及其对应的EmployeeRole数据
+     * @param id 员工ID
+     * @return 是否删除成功
+     */
+    @Transactional
+    public boolean deleteEmployeeAndRole(Integer id) {
+        if (id == null || id <= 0) {
+            return false;
+        }
+        try {
+            // 先删除对应的EmployeeRole数据
+            sysUserRoleService.removeRoleService(id);
+            // 再删除员工数据
+            return this.removeById(id);
+        } catch (Exception e) {
+            // 可以添加日志记录
+            return false;
+        }
+    }
 
 
 
