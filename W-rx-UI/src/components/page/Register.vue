@@ -60,13 +60,13 @@ export default {
         ],
         customerId: [
           { required: true, message: '请输入账号', trigger: 'blur' },
-          { min: 4, max: 20, message: '账号长度应在4-20个字符之间', trigger: 'blur' },
-          { pattern: /^[a-zA-Z0-9_]+$/, message: '账号只能包含字母、数字和下划线', trigger: 'blur' }
+          { min: 3, max: 8, message: '账号长度应在3-8个字符之间', trigger: 'blur' },
+          { pattern: /^[a-zA-Z]+$/, message: '账号只能由字母组成', trigger: 'blur' }
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 6, message: '密码长度不能少于6个字符', trigger: 'blur' },
-          { pattern: /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,}$/, message: '密码必须包含字母和数字', trigger: 'blur' }
+          { min: 6, max: 18, message: '密码长度应在6-18个字符之间', trigger: 'blur' },
+          { pattern: /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,18}$/, message: '密码必须由字母和数字组成', trigger: 'blur' }
         ],
         password_repeat: [
           { required: true, message: '请确认密码', trigger: ['blur', 'input'] },
@@ -80,7 +80,7 @@ export default {
         ],
         phone: [
           { required: true, message: '请输入手机号', trigger: 'blur' },
-          { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号格式', trigger: 'blur' }
+          { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号', trigger: 'blur' }
         ],
         role: [
           { required: true, message: '请选择角色', trigger: 'change' }

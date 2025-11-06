@@ -151,7 +151,7 @@ export default {
     const validateCustomerId = (rule, value, callback) => {
       const reg = /^[a-zA-Z]{3,8}$/;
       if (!reg.test(value)) {
-        callback(new Error('账号必须是4-8位字母'));
+        callback(new Error('账号必须是3-8位字母'));
       } else {
         callback();
       }
