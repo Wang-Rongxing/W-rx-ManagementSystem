@@ -33,7 +33,6 @@
           <img :src="hotel.image" alt="酒店图片" class="hotel-img" />
           <h3 class="hotel-name">{{ hotel.name }}</h3>
           <p class="hotel-price">¥{{ hotel.price }}起</p>
-          <p class="hotel-review">{{ hotel.review }}点评</p>
         </div>
       </div>
     </div>
@@ -49,28 +48,24 @@ export default {
           id: 1,
           name: "豪华间",
           price: 260,
-          review: 1933,
           image: require("../../assets/img/haohuajian.jpg"),
         },
         {
           id: 2,
           name: "大床房",
           price: 200,
-          review: 1933,
           image: require("../../assets/img/dachuangfang.jpg"),
         },
         {
           id: 3,
           name: "双人间",
           price: 180,
-          review: 1933,
           image: require("../../assets/img/shuangrenjian.jpg"),
         },
         {
           id: 4,
           name: "单人",
           price: 120,
-          review: 1933,
           image: require("../../assets/img/danrenjian.jpg"),
         },
       ],
