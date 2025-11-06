@@ -68,7 +68,7 @@
         <div v-if="filteredRooms.length === 0" class="empty-state">
           <el-empty
             description="暂无可用房间"
-            image-size="120"
+            image-size:120
           />
         </div>
     </div>
