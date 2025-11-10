@@ -171,4 +171,11 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         queryWrapper.eq(Customer::getCustomerId, customerId);
         return this.getOne(queryWrapper);
     }
+
+    @Override
+    public Customer getCustomerById(Integer Id) {
+        LambdaQueryWrapper<Customer> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Customer::getId, Id);
+        return this.getOne(queryWrapper);
+    }
 }

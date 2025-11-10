@@ -129,7 +129,7 @@ public class CustomerController {
             System.out.println("接收到更新用户信息请求: " + customer);
             
             // 验证客户对象不为空
-            if (customer == null || customer.getCustomerId() == null || customer.getCustomerId().isEmpty()) {
+            if (customer == null || customer.getId() == null) {
                 System.out.println("客户ID为空");
                 result.put("success", false);
                 result.put("message", "客户ID不能为空");
@@ -137,7 +137,7 @@ public class CustomerController {
             }
             
             // 根据customerId查找客户
-            Customer existingCustomer = customerService.getCustomerById(customer.getCustomerId());
+            Customer existingCustomer = customerService.getCustomerById(customer.getId());
             if (existingCustomer == null) {
                 System.out.println("客户不存在");
                 result.put("success", false);

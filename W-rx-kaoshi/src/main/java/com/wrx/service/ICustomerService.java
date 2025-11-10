@@ -34,4 +34,6 @@ public interface ICustomerService extends IService<Customer> {
     
     //根据customerId获取客户信息
     Customer getCustomerById(String customerId);
+    //根据Id获取客户信息
+    Customer getCustomerById(Integer Id);
 }

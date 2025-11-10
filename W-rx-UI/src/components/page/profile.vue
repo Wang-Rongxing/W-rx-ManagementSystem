@@ -5,6 +5,7 @@ export default {
   data() {
     return {
       userInfo: {
+        id: '',
         customerId: '',
         name: '',
         phone: '',
@@ -13,7 +14,9 @@ export default {
       isSubmitting: false,
       loading: false,
       phoneError: false,
-      phoneErrorMessage: ''
+      phoneErrorMessage: '',
+      usernameError: false,
+      usernameErrorMessage: ''
       ,
       // 密码修改相关数据
       passwordVisible: false,
@@ -59,6 +62,7 @@ export default {
           if (response && response.data && typeof response.data === 'object') {
             // 新的响应格式：数据嵌套在response.data中
             this.userInfo = {
+              id: response.data.id,
               customerId: response.data.customerId || userData.employeeId,
               name: response.data.name || '',
               phone: response.data.phone || '',
@@ -96,9 +100,8 @@ export default {
 
     // 保存个人信息
     async saveProfile() {
-      // 表单验证
-      if (!this.userInfo.name) {
-        this.$message.error('请输入姓名');
+      // 执行用户名验证
+      if (!this.validateUsername()) {
         return;
       }
       
@@ -283,6 +286,32 @@ export default {
       this.$message.info('头像上传功能开发中');
     },
     
+    // 验证用户名
+    validateUsername() {
+      this.usernameError = false;
+      this.usernameErrorMessage = '';
+      
+      if (!this.userInfo.customerId) {
+        this.usernameError = true;
+        this.usernameErrorMessage = '请输入用户名';
+        return false;
+      }
+      
+      if (this.userInfo.customerId.length < 3 || this.userInfo.customerId.length > 8) {
+        this.usernameError = true;
+        this.usernameErrorMessage = '用户名长度必须为3-8位';
+        return false;
+      }
+      
+      if (!/^[a-zA-Z]+$/.test(this.userInfo.customerId)) {
+        this.usernameError = true;
+        this.usernameErrorMessage = '用户名只能包含字母';
+        return false;
+      }
+      
+      return true;
+    },
+    
     // 验证电话号码
     validatePhone() {
       this.phoneError = false;
@@ -333,12 +362,12 @@ export default {
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-text">用户名</span>
-                  <span class="label-desc">账号登录名</span>
+                  <span class="label-text">姓名</span>
+                  <span class="label-desc">用户真实姓名</span>
                 </label>
                 <input 
                   type="text" 
-                  v-model="userInfo.customerId"
+                  v-model="userInfo.name" 
                   class="form-input" 
                   readonly
                   :class="{ 'form-input-readonly': true }"
@@ -349,16 +378,19 @@ export default {
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-text">姓名</span>
-                  <span class="label-desc">请输入真实姓名</span>
+                  <span class="label-text">用户名</span>
+                  <span class="label-desc">账号登录名</span>
                 </label>
                 <input 
                   type="text" 
-                  v-model="userInfo.name" 
+                  v-model="userInfo.customerId"
                   class="form-input"
-                  placeholder="请输入姓名"
-                  maxlength="20"
+                  :class="{ 'form-input-error': usernameError }"
+                  placeholder="请输入3-8位字母的用户名"
+                  maxlength="8"
+                  @blur="validateUsername"
                 />
+                <div v-if="usernameError" class="error-message">{{ usernameErrorMessage }}</div>
               </div>
             </div>
             
