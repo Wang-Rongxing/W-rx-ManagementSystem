@@ -50,6 +50,15 @@ public interface IOrdersService extends IService<Orders> {
     boolean checkIn(Integer orderId);
     
     /**
+     * 根据客户ID查询订单
+     * @param customerId 客户ID
+     * @param page 页码
+     * @param pageSize 每页大小
+     * @return 包含订单列表和总数的Map
+     */
+    Map<String, Object> getOrdersByCustomerId(String customerId, int page, int pageSize);
+    
+    /**
      * 添加订单
      * @param customerId 客户ID
      * @param roomNumber 房间号

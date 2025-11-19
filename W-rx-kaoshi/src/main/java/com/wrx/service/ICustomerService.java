@@ -36,4 +36,6 @@ public interface ICustomerService extends IService<Customer> {
     Customer getCustomerById(String customerId);
     //根据Id获取客户信息
     Customer getCustomerById(Integer Id);
+    //获取客户历史入住记录
+    Map<String, Object> getHistory(String customerId, int page, int pageSize);
 }
