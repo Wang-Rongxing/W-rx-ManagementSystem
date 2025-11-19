@@ -5,7 +5,6 @@ import com.wrx.dto.EmployeeDto;
 import com.wrx.entity.Employee;
 import com.wrx.service.IEmployeeService;
 import jakarta.annotation.Resource;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;

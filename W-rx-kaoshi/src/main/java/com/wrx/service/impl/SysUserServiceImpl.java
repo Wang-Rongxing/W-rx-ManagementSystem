@@ -29,8 +29,6 @@ import java.util.List;
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements ISysUserService {
     @Resource
     private AuthenticationManager authenticationManager;
-    @Resource
-    private PasswordEncoder passwordEncoder;
     @Override
     public LoginUserDto login(SysUser sysUser) {
         String usernameWithRole = "admin:" + sysUser.getAccount();
