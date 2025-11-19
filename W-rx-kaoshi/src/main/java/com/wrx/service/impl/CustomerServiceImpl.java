@@ -40,20 +40,11 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
     private PasswordEncoder passwordEncoder;
     @Override
     public LoginUserDto login(Customer customer) {
-        //判断获取的 UserDetails 信息中的密码是否和前端提交的密码一致，
-        //security调用AuthenticationManager进行认证
-        // 如果一致返回一个通过验证了的 UserDetails（LoginUser），如果密码不一致抛出异常
-        // 将角色信息包含在username中，格式：role:username
         String usernameWithRole = "customer:" + customer.getCustomerId();
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(usernameWithRole, customer.getPassword());
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
-        //把合法的authentication的内容处理或封装到LoginUserDto
         LoginCustomer loginCustomer = (LoginCustomer) authentication.getPrincipal();
-        //密码验证成功，根据 user 的 id 查询对应的 SysRole 信息并存入 loginUser
-
-        //TODO 把user及角色信息存入redis
         LoginUserDto loginUserDto = new LoginUserDto();
-        //复制Employee，粘贴到LoginEmployeeDto
         loginUserDto.setName(loginCustomer.getCustomer().getName());
         loginUserDto.setEmployeeId(loginCustomer.getCustomer().getCustomerId());
         String token = JwtUtil.creatToken(loginCustomer.getCustomer().getId());

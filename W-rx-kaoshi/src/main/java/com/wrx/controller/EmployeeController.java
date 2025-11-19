@@ -26,13 +26,6 @@ import java.util.Map;
 public class EmployeeController {
     @Resource
     private IEmployeeService userService;
-    /*
-    1、分页查询user（所有或根据条件）
-    2、根据user_id查询SysUserRole
-    3、根据SysUserRole的role_id查询Role
-     */
-    //@PreAuthorize("hasAnyAuthority('ROLE_sys_admin','ROLE_edu_admin')")
-    //@PreAuthorize("hasAuthority('ROLE_sys_admin')")
     @GetMapping("/userWithRoleByPage")
     public Map<String,Object> selectUserAndRole(Employee employee, int pageIndex, int pageSize){
         return userService.selectUserAndRole(employee,pageIndex,pageSize);
@@ -53,7 +46,6 @@ public class EmployeeController {
             return false;
         }
     }
-    //@PreAuthorize("hasAnyRole('sys_admin','edu_admin')")//自动补全ROLE_
     @PostMapping("/updateUserRole")
     public boolean updateUserRole(@RequestBody EmployeeDto employeeDto){
         return userService.updateUserRole(employeeDto);
