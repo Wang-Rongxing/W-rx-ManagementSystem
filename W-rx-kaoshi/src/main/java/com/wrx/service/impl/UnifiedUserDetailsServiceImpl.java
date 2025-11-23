@@ -45,22 +45,18 @@ public class UnifiedUserDetailsServiceImpl implements UserDetailsService {
         String actualUsername = parts[1];
         
         // 根据不同的角色运行不同的代码
-        switch (role) {
-            case "admin":
+        return switch (role) {
+            case "admin" ->
                 // 系统管理员角色处理逻辑
-                return handleAdminLogin(actualUsername);
-                
-            case "hotel":
+                    handleAdminLogin(actualUsername);
+            case "hotel" ->
                 // 酒店员工角色处理逻辑
-                return handleEmployeeLogin(actualUsername);
-                
-            case "customer":
+                    handleEmployeeLogin(actualUsername);
+            case "customer" ->
                 // 客户角色处理逻辑
-                return handleCustomerLogin(actualUsername);
-                
-            default:
-                throw new RuntimeException("不支持的角色类型: " + role);
-        }
+                    handleCustomerLogin(actualUsername);
+            default -> throw new RuntimeException("不支持的角色类型: " + role);
+        };
     }
     
     /**
