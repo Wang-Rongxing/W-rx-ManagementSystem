@@ -72,7 +72,7 @@ public class UnifiedUserDetailsServiceImpl implements UserDetailsService {
         SysUser sysUser = sysUserMapper.selectOne(sysUserWrapper);
         
         if (Objects.isNull(sysUser)) {
-            throw new RuntimeException("系统用户不存在: " + username);
+            throw new RuntimeException("管理员不存在: " + username);
         }
         
         // 管理员特有的业务逻辑
