@@ -36,41 +36,52 @@ service.interceptors.response.use(
 			}
 		}
 		if (response.status === 200) {
-			return response.data;
+			const res = response.data;
+			
+			if (res.code !== undefined) {
+				if (res.code !== 200) {
+					const errorMsg = res.message || res.msg || '请求失败';
+					ElementUI.Message.error({
+						message: errorMsg,
+						duration: 3000,
+						center: true
+					});
+					return Promise.reject(new Error(errorMsg));
+				}
+				return res.data !== undefined ? res.data : res;
+			}
+			
+			return res;
 		} else {
 			Promise.reject();
 		}
 	},
 	error => {
-		// 401没权限
 		console.log('请求错误:', error);
 		
-		// 判断是否是页面初次加载或刷新时发生的错误
 		const isPageLoadOrRefresh = !router.history.current.matched.length;
 		
-		if (error.response) { //如果服务器有错误回应
-			if (error.response.status === 401 ) { //如果没有权限
+		if (error.response) {
+			if (error.response.status === 401) {
 				sessionStorage.removeItem("user");
-				//输出来自服务器的异常信息
+				const errorMsg = (error.response.data && (error.response.data.message || error.response.data.msg)) || "权限不足或登录超时，请重新登录";
 				ElementUI.Message.error({
-					message: error.response.data.msg ? error.response.data.msg : "权限不足,或登录超时，请重新登录",
+					message: errorMsg,
 					duration: 6000,
 					center: true
 				});
-				router.push('/login'); //要求重新登录
+				router.push('/login');
 			} else {
-				// 对于页面加载或刷新时的非401错误，不显示错误信息，让App.vue中的错误处理逻辑来处理
 				if (!isPageLoadOrRefresh) {
-					//输出来自服务器的异常信息
+					const errorMsg = (error.response.data && (error.response.data.message || error.response.data.msg)) || "服务器没有提供此服务";
 					ElementUI.Message.error({
-						message: error.response.data.msg ? error.response.data.msg : "服务器没有提供此服务",
+						message: errorMsg,
 						duration: 6000,
 						center: true
 					});
 				}
 			}
-		} else if (!isPageLoadOrRefresh) { //没有连接上服务器的错误提示，且不是页面加载或刷新时的错误
-			// 只在用户操作过程中的请求失败时显示错误信息
+		} else if (!isPageLoadOrRefresh) {
 			ElementUI.Message.error({
 				message: "网络连接失败，请检查您的网络设置",
 				duration: 4000,
@@ -78,7 +89,7 @@ service.interceptors.response.use(
 			});
 		}
 		
-		return Promise.reject(error); // 传递错误对象，方便上层组件处理
+		return Promise.reject(error);
 	}
 );
 
@@ -128,9 +139,9 @@ export const axiosExport = (axiosConfig) => {
     }, (error) => {
         // 对响应错误做点什么
         if(error){
-            message.error(error.response.data?error.response.data.message:'系统错误')
+            ElementUI.Message.error(error.response && error.response.data ? error.response.data.message : '系统错误');
         }
-        return Promise.reject(error.response.data);
+        return Promise.reject(error.response ? error.response.data : error);
     });
     return service({...axiosConfig, responseType: 'blob'})
 }

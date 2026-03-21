@@ -1,5 +1,6 @@
 package com.wrx.controller;
 
+import com.wrx.common.Result;
 import com.wrx.entity.Room;
 import com.wrx.service.IRoomService;
 import jakarta.annotation.Resource;
@@ -8,14 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * <p>
- * 客房表 前端控制器
- * </p>
- *
- * @author 王荣星
- * @since 2025-10-28
- */
 @RestController
 @CrossOrigin
 @RequestMapping("/room")
@@ -23,54 +16,55 @@ public class RoomController {
     @Resource
     private IRoomService roomService;
 
-    // 查询所有客房信息
     @GetMapping("/allRooms")
-    public Map<String, Object> selectAllRooms(Room room, Integer pageIndex, Integer pageSize) {
-        return roomService.selectAllRooms(room, pageIndex, pageSize);
+    public Result<Map<String, Object>> selectAllRooms(Room room, Integer pageIndex, Integer pageSize) {
+        Map<String, Object> data = roomService.selectAllRooms(room, pageIndex, pageSize);
+        return Result.success(data);
     }
 
-    // 根据条件搜索客房
     @PostMapping("/selectRoomByCondition")
-    public Map<String, Object> selectRoomByCondition(@RequestBody Room room) {
-        return roomService.selectRoomByCondition(room);
+    public Result<Map<String, Object>> selectRoomByCondition(@RequestBody Room room) {
+        Map<String, Object> data = roomService.selectRoomByCondition(room);
+        return Result.success(data);
     }
 
-    // 新增客房
     @PostMapping("/insertRoom")
-    public boolean insertRoom(@RequestBody Room room) {
-        return roomService.insertRoom(room);
+    public Result<Boolean> insertRoom(@RequestBody Room room) {
+        boolean success = roomService.insertRoom(room);
+        return success ? Result.success("新增成功", success) : Result.error("新增失败");
     }
 
-    // 更新客房信息
     @PostMapping("/updateRoom")
-    public boolean updateRoom(@RequestBody Room room) {
-        return roomService.updateRoom(room);
+    public Result<Boolean> updateRoom(@RequestBody Room room) {
+        boolean success = roomService.updateRoom(room);
+        return success ? Result.success("更新成功", success) : Result.error("更新失败");
     }
 
-    // 删除客房
     @DeleteMapping("/delete/{id}")
-    public boolean deleteRoom(@PathVariable Integer id) {
+    public Result<Boolean> deleteRoom(@PathVariable Integer id) {
         if (id == null || id <= 0) {
-            return false;
+            return Result.error("无效的ID");
         }
         try {
-            return roomService.removeById(id);
+            boolean success = roomService.removeById(id);
+            return success ? Result.success("删除成功", success) : Result.error("删除失败");
         } catch (Exception e) {
             System.out.println("删除客房异常: " + e.getMessage());
             e.printStackTrace();
-            return false;
+            return Result.error("删除异常: " + e.getMessage());
         }
     }
-    // 获取所有客房类型
+
     @GetMapping("/types")
-    public List<String> getRoomTypes() {
-        return roomService.getRoomTypes();
+    public Result<List<String>> getRoomTypes() {
+        List<String> data = roomService.getRoomTypes();
+        return Result.success(data);
     }
     
-    // 根据客房类型和状态查询客房
     @GetMapping("/selectRoomByroomTypeAndStatus")
-    public List<String> selectRoomByroomTypeAndStatus(@RequestParam(required = false) String roomType,
+    public Result<List<String>> selectRoomByroomTypeAndStatus(@RequestParam(required = false) String roomType,
                                                   @RequestParam(required = false) Integer status) {
-        return roomService.selectRoomByroomTypeAndStatus(roomType, status);
+        List<String> data = roomService.selectRoomByroomTypeAndStatus(roomType, status);
+        return Result.success(data);
     }
 }

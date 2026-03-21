@@ -353,7 +353,6 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @Override
     @Transactional
     public boolean addOrder(String customerId, String roomNumber, LocalDate checkInDate, LocalDate checkOutDate) {
-        // 1. 根据customerId查询客户表的id
         QueryWrapper<Customer> customerQueryWrapper = new QueryWrapper<>();
         customerQueryWrapper.eq("customer_id", customerId);
         Customer customer = customerMapper.selectOne(customerQueryWrapper);
@@ -362,7 +361,6 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         }
         Integer dbCustomerId = customer.getId();
         
-        // 2. 根据roomNumber查询客房表的id和金额
         QueryWrapper<Room> roomQueryWrapper = new QueryWrapper<>();
         roomQueryWrapper.eq("room_number", roomNumber);
         Room room = roomMapper.selectOne(roomQueryWrapper);
@@ -372,11 +370,9 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         Integer roomId = room.getRoomId();
         BigDecimal price = room.getPrice();
         
-        // 3. 计算订单金额（根据入住天数）
         long days = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         BigDecimal totalAmount = price.multiply(BigDecimal.valueOf(days));
         
-        // 4. 创建订单记录并存入订单表
         Orders order = new Orders();
         order.setCustomerId(dbCustomerId);
         order.setRoomId(roomId);
@@ -390,9 +386,45 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             return false;
         }
         
-        // 5. 更新客房状态为已预订（2表示已预订）
         room.setStatus(2);
         return roomMapper.updateById(room) > 0;
+    }
+
+    @Override
+    public boolean cancelOrderWithValidation(Integer orderId) {
+        if (orderId == null) {
+            throw new IllegalArgumentException("订单ID不能为空");
+        }
+        try {
+            return cancelOrder(orderId);
+        } catch (Exception e) {
+            throw new RuntimeException("取消订单异常：" + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public boolean checkInWithValidation(Integer orderId) {
+        if (orderId == null) {
+            throw new IllegalArgumentException("订单ID不能为空");
+        }
+        try {
+            return checkIn(orderId);
+        } catch (Exception e) {
+            throw new RuntimeException("办理入住异常：" + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public boolean addOrderWithParams(Map<String, Object> params) {
+        String customerId = (String) params.get("customerId");
+        String roomNumber = (String) params.get("roomNumber");
+        String checkInDateStr = (String) params.get("checkInDate");
+        String checkOutDateStr = (String) params.get("checkOutDate");
+        
+        LocalDate checkInDate = LocalDate.parse(checkInDateStr);
+        LocalDate checkOutDate = LocalDate.parse(checkOutDateStr);
+        
+        return addOrder(customerId, roomNumber, checkInDate, checkOutDate);
     }
 
 }

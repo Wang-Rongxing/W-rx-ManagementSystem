@@ -245,4 +245,84 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         
         return result;
     }
+
+    @Override
+    public Customer getUserInfo(String customerId) {
+        Customer customer = getCustomerById(customerId);
+        if (customer == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+        return customer;
+    }
+
+    @Override
+    public boolean updatePassword(String customerId, String password) {
+        if (customerId == null || customerId.isEmpty() || password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("参数不完整");
+        }
+        Customer customer = getCustomerById(customerId);
+        if (customer == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+        customer.setPassword(passwordEncoder.encode(password));
+        return updateById(customer);
+    }
+
+    @Override
+    public boolean updateUserInfo(Customer customer) {
+        if (customer == null || customer.getId() == null) {
+            throw new IllegalArgumentException("客户ID不能为空");
+        }
+        Customer existingCustomer = getCustomerById(customer.getId());
+        if (existingCustomer == null) {
+            throw new IllegalArgumentException("客户不存在");
+        }
+        customer.setId(existingCustomer.getId());
+        customer.setPassword(existingCustomer.getPassword());
+        return updateById(customer);
+    }
+
+    @Override
+    public boolean insertUserWithValidation(Customer customer) {
+        if (customer == null) {
+            throw new IllegalArgumentException("客户对象为空");
+        }
+        if (customer.getCustomerId() == null || customer.getCustomerId().isEmpty()) {
+            throw new IllegalArgumentException("客户ID为空");
+        }
+        if (customer.getName() == null || customer.getName().isEmpty()) {
+            throw new IllegalArgumentException("客户姓名为空");
+        }
+        if (customer.getPassword() == null || customer.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("客户密码为空");
+        }
+        return insertUser(customer);
+    }
+
+    @Override
+    public boolean deleteCustomer(Integer id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("无效的ID");
+        }
+        return removeById(id);
+    }
+
+    @Override
+    public boolean updateUserWithValidation(Customer customer) {
+        if (customer == null || customer.getId() == null) {
+            throw new IllegalArgumentException("客户ID为空");
+        }
+        Customer existingCustomer = getById(customer.getId());
+        if (existingCustomer == null) {
+            throw new IllegalArgumentException("客户不存在");
+        }
+        if (customer.getPassword() != null && !customer.getPassword().isEmpty()) {
+            if (!customer.getPassword().equals(existingCustomer.getPassword())) {
+                customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+            }
+        } else {
+            customer.setPassword(existingCustomer.getPassword());
+        }
+        return updateById(customer);
+    }
 }

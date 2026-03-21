@@ -28,20 +28,17 @@
 </template>
 
 <script>
-	import {
-		ajaxGet,
-		ajaxPost
-	} from "../../api/index";
-	import{getDynamicMenu} from  "../../router/dynamicMenu.js";
+	import authApi from "../../api/auth";
+	import {getDynamicMenu} from "../../router/dynamicMenu.js";
+	
 	export default {
-		data: function() {
+		data() {
 			return {
-				flag: false,
-				loginLoading:false,
+				loginLoading: false,
 				param: {
 					employeeId: '',
 					password: '',
-          role: '',
+					role: ''
 				},
 				rules: {
 					employeeId: [{
@@ -53,133 +50,73 @@
 						required: true,
 						message: '请输入密码',
 						trigger: 'blur'
-					}],
-				},
+					}]
+				}
 			};
 		},
 	
 		methods: {
-			submitFormAdmin() {
+			getLoginData() {
+				const { role, employeeId, password } = this.param;
+				switch (role) {
+					case 'admin':
+						return authApi.login.admin({ account: employeeId, password });
+					case 'hotel':
+						return authApi.login.hotel({ employeeId, password });
+					case 'customer':
+						return authApi.login.customer({ customerId: employeeId, password });
+					default:
+						return Promise.reject(new Error('请选择角色'));
+				}
+			},
+			
+			getRedirectPath() {
+				return this.param.role === 'customer' ? '/HomeUser/home' : '/ht/dashboard';
+			},
+			
+			handleLoginSuccess(userData) {
+				sessionStorage.setItem('user', JSON.stringify(userData));
+				this.$store.commit('setRoles', userData.roles);
+				getDynamicMenu();
+				this.$message.success('登录成功');
+				this.$router.push(this.getRedirectPath());
+			},
+			
+			handleLogin() {
 				this.$refs.login.validate(valid => {
-					if (valid) {
-						this.loginLoading=true;
-            ajaxPost('/sysuser/login', {account: this.param.employeeId, password: this.param.password}).then(res => {
-								this.flag = res ? true : false;
-								if (this.flag) {
-									if(res.roles!=null&&res.roles.length>0){
-									sessionStorage.setItem('user', JSON.stringify(res));
-									this.$store.commit('setRoles',res.roles);
-									getDynamicMenu();
-									this.$message.success('登录成功');
-									this.$router.push('/ht/dashboard');
-									}else{
-										this.$message.error({message:'您没有权限访问系统',center: true});
-									}
-
-								} else {
-									this.$message.error({message:'工号或密码错误',center: true});
-
-									return false;
-								}
-							})
-							.catch(error => {
-								this.loginLoading=false;
-
-							});
-					} else {
-						//this.$message.error('请输入账号和密码');
+					if (!valid) {
 						console.log('error submit!!');
 						return false;
 					}
+					
+					if (!this.param.role) {
+						this.$message.warning('请选择角色');
+						return false;
+					}
+					
+					this.loginLoading = true;
+					
+					this.getLoginData()
+						.then(res => {
+							if (res.roles && res.roles.length > 0) {
+								this.handleLoginSuccess(res);
+							} else {
+								this.$message.error({ message: '您没有权限访问系统', center: true });
+							}
+						})
+						.catch(() => {
+							this.loginLoading = false;
+						})
+						.finally(() => {
+							this.loginLoading = false;
+						});
 				});
 			},
-      submitFormHotel() {
-        this.$refs.login.validate(valid => {
-          if (valid) {
-            this.loginLoading=true;
-            ajaxPost('/employee/login', this.param).then(res => {
-            		this.flag = res ? true : false;
-            		if (this.flag) {
-            			if(res.roles!=null&&res.roles.length>0){
-            			sessionStorage.setItem('user', JSON.stringify(res));
-            			this.$store.commit('setRoles',res.roles);
-            			getDynamicMenu();
-            			this.$message.success('登录成功');
-            			this.$router.push('/ht/dashboard');
-            			}else{
-            				this.$message.error({message:'您没有权限访问系统',center: true});
-            			}
-
-            		} else {
-            			this.$message.error({message:'工号或密码错误',center: true});
-
-            			return false;
-            		}
-            	})
-            	.catch(error => {
-            		this.loginLoading=false;
-
-            	});
-          } else {
-            //this.$message.error('请输入账号和密码');
-            console.log('error submit!!');
-            return false;
-          }
-        });
-      },
-      submitFormCustomer() {
-        //location.reload();
-        this.$refs.login.validate(valid => {
-          if (valid) {
-            this.loginLoading=true;
-            ajaxPost('/customer/login', {customerId: this.param.employeeId, password: this.param.password}).then(res => {
-            		this.flag = res ? true : false;
-            		if (this.flag) {
-            			if(res.roles!=null&&res.roles.length>0){
-            			sessionStorage.setItem('user', JSON.stringify(res));
-            			this.$store.commit('setRoles',res.roles);
-            			getDynamicMenu();
-            			this.$router.push('/HomeUser/home');
-            			}else{
-            				this.$message.error({message:'您没有权限访问系统',center: true});
-            			}
-
-            		} else {
-            			this.$message.error({message:'工号或密码错误',center: true});
-
-            			return false;
-            		}
-            	})
-            	.catch(error => {
-            		this.loginLoading=false;
-
-            	});
-          } else {
-            //this.$message.error('请输入账号和密码');
-            console.log('error submit!!');
-            return false;
-          }
-        });
-      },
-      goToRegister(){
-        this.$router.push('/register');
-      },
-      handleLogin() {
-        switch (this.param.role) {
-          case 'admin':
-            this.submitFormAdmin();
-            break;
-          case 'hotel':
-            this.submitFormHotel();
-            break;
-          case 'customer':
-            this.submitFormCustomer();
-            break;
-          default:
-            this.$message.warning('请选择有效角色');
-        }
-      }
-		},
+			
+			goToRegister() {
+				this.$router.push('/register');
+			}
+		}
 	};
 </script>
 

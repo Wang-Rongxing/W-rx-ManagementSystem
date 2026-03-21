@@ -1,5 +1,10 @@
 import request from '../utils/request';
 import {axiosExport} from '../utils/request';
+import authApi from './auth';
+import employeeApi from './employee';
+import customerApi from './customer';
+import roomApi from './room';
+
 export const fetchData = query => {
     return request({
         url: '/allUser',
@@ -8,21 +13,22 @@ export const fetchData = query => {
     });
 };
 
-
-export const ajaxGet = (url,query) => {
+export const ajaxGet = (url, query) => {
     return request({
         url: url,
         method: 'get',
         params: query
     });
 };
-export const ajaxDelete = (url,query) => {
+
+export const ajaxDelete = (url, query) => {
     return request({
         url: url+'/'+query,
         method: 'delete',
     });
 };
-export const ajaxPost = (url,data) => {
+
+export const ajaxPost = (url, data) => {
     return request({
         url: url,
         method: 'post',
@@ -36,4 +42,11 @@ export const ajaxExport=(url,query)=>{
 		 method:'get',
 		 params:query
 	 });	
+};
+
+export {
+    authApi,
+    employeeApi,
+    customerApi,
+    roomApi
 };
