@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "set NODE_OPTIONS=--openssl-legacy-provider && npm run serve",
     "serve": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "build": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build"
   },
   "dependencies": {
     "af-table-column": "^1.0.3",
