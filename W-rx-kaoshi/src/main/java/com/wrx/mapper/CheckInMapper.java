@@ -9,7 +9,7 @@ import com.wrx.entity.CheckIn;
  * </p>
  *
  * @author 王荣星
- * @since 2025-10-28
+ *  
  */
 public interface CheckInMapper extends BaseMapper<CheckIn> {
 
