@@ -3,6 +3,8 @@ package com.wrx.controller;
 import com.wrx.common.Result;
 import com.wrx.entity.Orders;
 import com.wrx.service.IOrdersService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,12 +12,14 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin
+@Tag(name = "订单模块",description = "订单增删改查接口")
 @RequestMapping("/orders")
 public class OrdersController {
 
     @Resource
     private IOrdersService ordersService;
 
+    @Operation(summary = "查询所以订单",description = ("查询所有订单"))
     @GetMapping("/allOrders")
     public Result<Map<String, Object>> getAllOrders(Orders orders, @RequestParam(defaultValue = "1") int pageIndex, @RequestParam(defaultValue = "10") int pageSize) {
         Map<String, Object> data = ordersService.selectAllUser(orders, pageIndex, pageSize);

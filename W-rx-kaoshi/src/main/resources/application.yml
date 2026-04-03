@@ -7,6 +7,17 @@ spring:
     username: root
     password: wrx20040103
     driver-class-name: com.mysql.cj.jdbc.Driver
+
 logging:
   level:
     com.wrx.mapper: debug
+
+knife4j:
+  enable: true
+  openapi:
+    title: 项目接口文档
+    description: Spring Boot 3.x 整合 Knife4j 文档
+    email: 1679400070@qq.com
+    concat: wrx
+    version: 1.0.0
+    license: Apache 2.0

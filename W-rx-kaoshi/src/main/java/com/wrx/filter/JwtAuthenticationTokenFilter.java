@@ -58,8 +58,18 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     //由 handlerExceptionResolver 引入全局异常
     @Resource
     private HandlerExceptionResolver handlerExceptionResolver;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // ========== 直接放行 Knife4j 所有请求 ==========
+        String uri = request.getRequestURI();
+        if (uri.contains("doc.html")
+                || uri.contains("/webjars/")
+                || uri.contains("/v3/api-docs")
+                || uri.contains("/swagger-resources")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         //从request中获取token（jwt）
         //从jwt的负载中获取userId
         //通过userId去数据库中查询user对应的角色
