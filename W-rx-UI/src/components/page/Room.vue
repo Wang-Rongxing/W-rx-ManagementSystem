@@ -114,7 +114,7 @@ export default {
         roomNumber: '',
         roomType: '',
         price: '',
-        status: 1,
+        status: '',
         description: ''
       }
     },
