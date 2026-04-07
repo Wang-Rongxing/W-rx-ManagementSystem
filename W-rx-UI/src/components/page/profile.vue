@@ -329,11 +329,11 @@ export default {
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-text">用户名</span>
+                  <span class="label-text">姓名</span>
                 </label>
                 <input
                     type="text"
-                    v-model="userInfo.customerId"
+                    v-model="userInfo.name"
                     class="form-input"
                     readonly
                     :class="{ 'form-input-readonly': true }"
@@ -344,13 +344,13 @@ export default {
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-text">姓名</span>
+                  <span class="label-text">用户名</span>
                 </label>
                 <input 
                   type="text" 
-                  v-model="userInfo.name"
+                  v-model="userInfo.customerId"
                   class="form-input"
-                  placeholder="请输入真实姓名"
+                  placeholder="请输入用户名"
                   maxlength="20"
                 />
               </div>
