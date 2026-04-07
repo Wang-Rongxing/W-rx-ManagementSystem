@@ -3,7 +3,7 @@
     <!-- 顶部横幅 -->
     <div class="banner">
       <img src="../../assets/img/home.jpg" alt="首页图片" class="banner-img" />
-      <h1 class="banner-title">飛鱼酒店网</h1>
+      <h1 class="banner-title">酒店网</h1>
     </div>
 
     <!-- 酒店服务升级 -->

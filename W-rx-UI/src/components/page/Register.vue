@@ -2,7 +2,7 @@
   <div class="login-wrap">
     <div class="login-bg-overlay"></div>
     <div class="ms-login">
-      <div class="ms-title">飛鱼酒店客户注册</div>
+      <div class="ms-title">酒店客户注册</div>
       <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
         <el-form-item prop="name">
           <el-input v-model="param.name" placeholder="姓名" class="login-input" prefix-icon="el-icon-lx-people"></el-input>

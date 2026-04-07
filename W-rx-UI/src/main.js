@@ -123,7 +123,7 @@ import {
 //使用钩子函数对路由进行权限跳转
 router.beforeEach((to, from, next) => {
 			//document.title = `${to.meta.title} | 酒店管理系统`;
-			document.title = `飛鱼酒店`;
+			document.title = `酒店`;
                
 			
 

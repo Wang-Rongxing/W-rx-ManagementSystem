@@ -7,7 +7,7 @@
 		</div>
 		<div class="logo">
       <img src="../../../public/logo.png" alt="logo">
-      飛鱼酒店后台管理系统</div>
+      酒店后台管理系统</div>
 		<div class="header-right">
 			<div class="header-employee-con">
 				<!-- 全屏显示 -->

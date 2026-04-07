@@ -7,7 +7,7 @@
 <!--		</div>-->
 		<div class="logo">
       <img src="../../../public/logo.png" alt="logo">
-      飛鱼酒店网
+      酒店网
     </div>
     <div class="menu-container">
       <el-menu :default-active="activeIndex" mode="horizontal" @select="handleSelect" class="horizontal-menu">
