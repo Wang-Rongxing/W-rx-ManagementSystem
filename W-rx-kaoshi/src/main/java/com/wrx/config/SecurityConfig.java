@@ -40,10 +40,6 @@ public class SecurityConfig {
             // 基于 token，不需要 session
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and().cors()
-            //.and()
-            //.exceptionHandling()
-            //.authenticationEntryPoint(authenticationEntryPoint)
-            //.accessDeniedHandler(accessDeniedHandlerImpl)
             .and()
             // 添加 JWT 过滤器，JWT 过滤器在用户名密码认证过滤器之前
             .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)

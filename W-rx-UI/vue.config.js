@@ -1,5 +1,4 @@
 module.exports = {
-   // baseUrl: './',
  
      publicPath:"/",
     assetsDir: 'static',
@@ -7,15 +6,6 @@ module.exports = {
      devServer: {
 		  port:8080,
 		  open:true
-    //     proxy: {
-    //         '/api':{
-    //             target:'http://jsonplaceholder.typicode.com',
-    //             changeOrigin:true,
-    //             pathRewrite:{
-    //                 '/api':''
-    //             }
-    //         }
-    //     }
     },
 	configureWebpack: (config) => {
 	    if (process.env.NODE_ENV === 'production') {// 为生产环境修改配置...

@@ -83,7 +83,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             Claim claim = decode.getClaim("userId");
             Long userId = claim.asLong();
             //通过userId去数据库中查询user对应的角色
-            //TODO 从redis（内存）中获取user对应的角色，高频访问的数据存入redis
             
             // 尝试从Employee表获取用户信息
             Employee employee = iEmployeeService.getById(Math.toIntExact(userId));

@@ -1,9 +1,3 @@
-/* "scripts": {
-      "dev": "SET NODE_OPTIONS=--openssl-legacy-provider&&npm run serve",
-      "serve": "SET NODE_OPTIONS=--openssl-legacy-provider&&vue-cli-service serve",
-      "build": "SET NODE_OPTIONS=--openssl-legacy-provider&&vue-cli-service build"
-    }, */
-
 <template>
 	<div id="app">
 		<router-view></router-view>
@@ -72,12 +66,6 @@
 				];
 				this.$router.addRoutes(end);
 			}
-			//在页面刷新时将vuex里的信息保存到sessionStorage里
-			// window.addEventListener("beforeunload", () => {
-			// 	// sessionStorage.setItem('path', this.$route.path);
-			// 	if (this.$store.state.roles.length > 0)
-			// 		sessionStorage.setItem("roles", JSON.stringify(this.$store.state.roles));
-			// });
 		}
 	}
 </script>

@@ -38,85 +38,7 @@
 		data() {
 			return {
 				collapse: false,
-				items: [
-					 //     {
-						// path: '/ht/dashboard',
-						// component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/Dashboard.vue'),
-						// meta: { title: '系统首页' },
-					 //       icon: 'el-icon-lx-home',
-					 //       index: 'dashboard',
-					 //       title: '系统首页'
-					 //     },
-					//      {
-					// 	  path: '/ht/table',
-					// 	                   component: () => import(/* webpackChunkName: "table" */ '../components/page/BaseTable.vue'),
-					// 	                   meta: { title: '基础表格' ,roles:['ROLE_edu_admin','ROLE_sys_admin']},
-					//          icon: 'el-icon-lx-cascades',
-					//          index: 'table',
-					//          title: '基础表格'
-					//      },
-					//  	{
-					// 	path: '/ht/test',
-					// 		    component: () => import(/* webpackChunkName: "table" */ '../components/page/test.vue'),
-					// 		    meta: { title: '单招考试',roles:['ROLE_teacher'] },
-					//  	    icon: 'el-icon-lx-cascades',
-					//  	    index: 'test',
-					//  	    title: '单招考试'
-					//  	},
-					//  	{
-					//  	    icon: 'el-icon-lx-calendar',
-					//  	   index: '1',
-					//  	    title: '考试管理',
-					// 	 meta: { roles:['ROLe_edu_admin','ROLE_sys_admin'] },
-					//  	    subs: [
-					//  	        {
-					// 			path: '/ht/teacher',
-					// 				    component: () => import(/* webpackChunkName: "table" */ '../components/page/teacher.vue'),
-					// 				    meta: { title: '教师管理' , roles:['ROLE_edu_admin']},
-					//  	            index: 'teacher',
-					//  	            title: '教师管理'
-					//  	        },
-
-					//  	        {
-					// 			path: '/ht/student',
-					// 				    component: () => import(/* webpackChunkName: "table" */ '../components/page/Customer.vue'),
-					// 				    meta: { title: '学生管理', roles:['ROLE_sys_admin'] },
-					//  	            index: 'student',
-					//  	            title: '学生管理'
-					//  	        } ,
-					//  			{
-					// 			path: '/ht/score',
-					// 				    component: () => import(/* webpackChunkName: "table" */ '../components/page/score.vue'),
-					// 				    meta: { title: '成绩管理' , roles:['ROLE_sys_admin']},
-					//  			    index: 'score',
-					//  			    title: '成绩管理'
-					//  			} 
-					//  	    ]
-					//  	},
-					// { path: '/ht/tabs',
-					// 		                 component: () => import(/* webpackChunkName: "tabs" */ '../components/page/Tabs.vue'),
-					// 		                 meta: { title: 'tab选项卡', roles:['ROLE_edu_admin'] },
-					//         icon: 'el-icon-lx-copy',
-					//         index: 'tabs',
-					//         title: 'tab选项卡'
-					//     },
-					// 	{
-					// 		path: '/ht/404',
-					// 		component: () => import( /* webpackChunkName: "404" */ '../components/page/ht404.vue'),
-					// 		meta: {
-					// 			title: '404'
-					// 		}
-					// 	},
-					// 	{
-					// 		path: '/ht/403',
-					// 		component: () => import( /* webpackChunkName: "403" */ '../components/page/403.vue'),
-					// 		meta: {
-					// 			title: '403'
-					// 		}
-					// 	}
-
-				]
-
+				items: []
 			};
 		},
 		computed: {
@@ -144,24 +66,6 @@
 									break;
 								}
 							}
-							// if(item.subs)
-							// {
-							// 	item.subs=item.subs.filter(sub=>{
-							// 		let b=false;
-							// 		sub.meta.roles.forEach(role=>{
-							// 			for(let r2 of this.$store.state.roles)
-							// 			{if(r2===role)
-							// 			  {
-							// 				b=true ;
-							// 				break;
-							// 			  }
-							// 			}
-							// 		})
-
-							// 		return b;
-							// 	});
-							// }
-
 						} else {
 							flag = true;
 						}

@@ -1,10 +1,5 @@
 <template>
 	<div class="header">
-		<!-- 折叠按钮 -->
-<!--		<div class="collapse-btn" @click="collapseChage">-->
-<!--			<i v-if="!collapse" class="el-icon-s-fold"></i>-->
-<!--			<i v-else class="el-icon-s-unfold"></i>-->
-<!--		</div>-->
 		<div class="logo">
       <img src="../../../public/logo.png" alt="logo">
       酒店网
@@ -105,11 +100,6 @@
 					//location.reload();
 				}
 			},
-			// 侧边栏折叠
-			// collapseChage() {
-			// 	this.collapse = !this.collapse;
-			// 	bus.$emit('collapse', this.collapse);
-			// },
 			// 全屏事件
 			handleFullScreen() {
 				// this.fullscreen=sessionStorage.getItem("fullscreen")?JSON.parse(sessionStorage.getItem("fullscreen")):this.fullscreen;
@@ -152,8 +142,6 @@
 			// window.addEventListener("beforeunload", () => {
 			//  sessionStorage.setItem("fullscreen", JSON.stringify(this.fullscreen));
 			// });
-
-
 		}
 	};
 </script>

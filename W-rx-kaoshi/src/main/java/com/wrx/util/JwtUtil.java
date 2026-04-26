@@ -67,15 +67,6 @@ public class JwtUtil {
                 .withExpiresAt(DateUtil.offsetMinute(new Date(), 60))//设置失效时间1小时后
                 .sign(Algorithm.HMAC256(SING));//签名
     }
-//    @Test
-//    public void test1() throws JsonProcessingException {
-//        User user = new User(); user.setId(1l);
-//        user.setJobId("20190152");
-//        List<String> list = new ArrayList<>(Arrays.asList("ROLE_teacher", "ROLE_edu_admin", "ROLE_sys_admin"));
-//        LoginUser loginUser = new LoginUser(user, list);
-//        String token = creatToken(user,list);
-//        System.out.println(token);
-//    }
     // 验证 token 是否被篡改，是否超时等
     public static void checkToken(String token) {
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(SING)).build();

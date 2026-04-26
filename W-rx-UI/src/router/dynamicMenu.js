@@ -1,12 +1,7 @@
-import Vue from 'vue';
 import Router from 'vue-router';
 import router from './';
 import {defaultRouters} from './';
 import store from '../store';
-
-
-
-
 function getMenu(){
     let childrens = [];
     let sItem=store.state.items;
@@ -66,8 +61,6 @@ function getMenu(){
 	let addMenu = [{
 			path: '/ht',
 			redirect: '/ht/dashboard'
-			// component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/Dashboard.vue'),
-			// meta: { title: '系统首页' }
 		},
 		{
 			path: '/ht/home',
@@ -87,20 +80,11 @@ function getMenu(){
 }
 
 export  const getDynamicMenu=()=>{
-	  // && store.state.flag === true
-	 //if (store.state.roles.length > 0) {
-		// console.log(store.state.roles);
 		resetRouter (router);
 		let m= getMenu();
-		//console.log(m);
-		//router.addRoutes(m);
 		m.forEach(route => {
 			router.addRoute(route);
 		});
-		//store.commit('setFlag', false);
-	//}
-	 	
-	
 }
 
 export function resetRouter (router) {
@@ -112,10 +96,5 @@ export function resetRouter (router) {
     })
   // 用初始化的matcher替换当前router的matcher
   router.matcher = createRouter().matcher;
-  // router.matcher=new Router({
-  //     mode: 'history',
-  //     routes: defaultRouters
-  //   }).matcher;
- //console.log(router.getRoutes());
 }
 

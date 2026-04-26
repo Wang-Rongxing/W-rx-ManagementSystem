@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 /**
  * MyBatis-Plus 配置类
  * 主要用于配置MyBatis-Plus的各种插件，例如分页插件
- *
  * @Configuration 表示这是一个Spring配置类，会被Spring容器加载
  */
 @Configuration
