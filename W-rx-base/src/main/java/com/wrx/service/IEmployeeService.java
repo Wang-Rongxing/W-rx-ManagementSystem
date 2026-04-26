@@ -1,0 +1,46 @@
+package com.wrx.service;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wrx.dto.LoginUserDto;
+import com.wrx.dto.EmployeeDto;
+import com.wrx.entity.Employee;
+import com.wrx.entity.Role;
+import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * <p>
+ *  服务类
+ * </p>
+ *
+ * @author 王荣星
+ *  
+ */
+public interface IEmployeeService extends IService<Employee> {
+    //分页查询user（所有或根据条件）
+    Page<Employee> selectByPage(Employee employee, int pageNum, int pageSize);
+    /*
+    1、分页查询user（所有或根据条件）
+    2、根据user_id查询SysUserRole
+    3、根据SysUserRole的role_id查询Role
+     */
+    Map<String,Object> selectUserAndRole(Employee employee, int pageIndex, int pageSize);
+    //更新员工角色
+    boolean updateUserRole(EmployeeDto employeeDto);
+    //分页查询所有员工
+    Map<String, Object> selectAllUser(Employee employee, int pageIndex, int pageSize);
+    //根据user_id查询role
+    List<Role> selectRolesByUserId(Employee employee);
+    //登录
+    LoginUserDto login(Employee employee);
+    // 重置密码
+    boolean resetUserPassword(Integer id, String employeeId);
+    //新增员工
+    boolean insertUser(Employee employee);
+    //根据员工id或姓名查询员工信息
+    Map<String, Object> selectEmployeeByIdOrName(Employee employee);
+    //根据id删除员工及权限
+    boolean deleteEmployeeAndRole(Integer id);
+}
