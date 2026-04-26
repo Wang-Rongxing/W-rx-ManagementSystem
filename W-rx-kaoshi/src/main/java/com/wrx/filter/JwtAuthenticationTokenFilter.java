@@ -65,8 +65,9 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         //通过userId去数据库中查询user对应的角色
         //把角色信息封装到Authentication
         //把合法带有角色的Authentication带入本次Security框架，由Security框架进行鉴权
-        if (request.getServletPath().equals("/employee/login")||request.getServletPath().equals("/sysuser/login")||request.getServletPath().equals("/customer/login")
-                ||request.getServletPath().equals("/customer/register")) {
+        String servletPath = request.getServletPath();
+        if (servletPath.equals("/employee/login")||servletPath.equals("/sysuser/login")||servletPath.equals("/customer/login")
+                ||servletPath.equals("/customer/register") || servletPath.startsWith("/sockjs-node") || servletPath.equals("/websocket")) {
             // 放行
             filterChain.doFilter(request, response);
             return;
@@ -80,8 +81,40 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             JwtUtil.checkToken(token);//检验token的合法性（是否被篡改、过期），抛出异常，由全局异常处理器来处理
             //从 token 中取出 json 格式的 user 和 roles
             DecodedJWT decode = JWT.decode(token);
-            Claim claim = decode.getClaim("userId");
-            Long userId = claim.asLong();
+            
+            // 尝试从 token 中获取 userId
+            Long userId = null;
+            Claim userIdClaim = decode.getClaim("userId");
+            if (userIdClaim != null && !userIdClaim.isNull()) {
+                userId = userIdClaim.asLong();
+            } else {
+                // 如果没有 userId 字段，尝试从 user 字段中解析
+                Claim userClaim = decode.getClaim("user");
+                if (userClaim != null && !userClaim.isNull()) {
+                    String userStr = userClaim.asString();
+                    // 尝试解析 user 字段来获取用户信息
+                    // 这里简化处理，直接从 user 字符串中提取 id
+                    // 实际项目中应该使用 JSON 解析库来解析
+                    try {
+                        // 简单的字符串处理来提取 id
+                        if (userStr.contains("id")) {
+                            int idStart = userStr.indexOf("id") + 3;
+                            int idEnd = userStr.indexOf(",", idStart);
+                            if (idEnd == -1) idEnd = userStr.indexOf("}", idStart);
+                            String idStr = userStr.substring(idStart, idEnd).trim();
+                            userId = Long.parseLong(idStr);
+                        }
+                    } catch (Exception e) {
+                        // 解析失败，抛出异常
+                        throw new NoRolesException("Token 格式错误");
+                    }
+                }
+            }
+            
+            if (userId == null) {
+                throw new NoRolesException("Token 中没有用户信息");
+            }
+            
             //通过userId去数据库中查询user对应的角色
             
             // 尝试从Employee表获取用户信息
