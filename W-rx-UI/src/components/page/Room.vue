@@ -322,10 +322,10 @@ export default {
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="form.status" placeholder="请选择状态">
-            <el-option label="空闲" value="1"></el-option>
-            <el-option label="已预订" value="2"></el-option>
-            <el-option label="已入住" value="3"></el-option>
-            <el-option label="待清洁" value="4"></el-option>
+            <el-option label="空闲" :value="1"></el-option>
+            <el-option label="已预订" :value="2"></el-option>
+            <el-option label="已入住" :value="3"></el-option>
+            <el-option label="待清洁" :value="4"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="描述">
@@ -356,10 +356,10 @@ export default {
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="form.status" placeholder="请选择状态">
-            <el-option label="空闲" value="1"></el-option>
-            <el-option label="已预订" value="2"></el-option>
-            <el-option label="已入住" value="3"></el-option>
-            <el-option label="待清洁" value="4"></el-option>
+            <el-option label="空闲" :value="1"></el-option>
+            <el-option label="已预订" :value="2"></el-option>
+            <el-option label="已入住" :value="3"></el-option>
+            <el-option label="待清洁" :value="4"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="描述">
