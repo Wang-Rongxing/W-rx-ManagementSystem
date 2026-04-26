@@ -87,7 +87,7 @@ const state = {
 		},
 		{
 			path: '/ht/404',
-			component: () => import( /* webpackChunkName: "404" */ '../components/page/ht404.vue'),
+			component: () => import( /* webpackChunkName: "404" */ '../components/page/404.vue'),
 			meta: {
 				title: '404'
 			}
