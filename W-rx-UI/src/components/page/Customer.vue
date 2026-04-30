@@ -16,7 +16,7 @@
 
       <!-- 搜索区域 -->
       <div class="search-box">
-        <el-input size="small" v-model="query.username" placeholder="用户名" class="handle-input mr10"></el-input>
+        <el-input size="small" v-model="query.username" placeholder="姓名" class="handle-input mr10"></el-input>
         <el-input size="small" v-model="query.customerId" placeholder="账号" class="handle-input mr10"></el-input>
         <el-button size="small" type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
         <el-button size="small" @click="handlerest">重置</el-button>
@@ -32,7 +32,7 @@
           empty-text="暂无数据"
         >
           <el-table-column prop="id" label="ID" width="60" align="center"></el-table-column>
-          <el-table-column prop="name" label="用户名" min-width="120"></el-table-column>
+          <el-table-column prop="name" label="姓名" min-width="120"></el-table-column>
           <el-table-column prop="customerId" label="账号" min-width="100"></el-table-column>
           <el-table-column prop="phone" label="电话" min-width="120"></el-table-column>
           <el-table-column label="操作" width="180" align="center">
@@ -91,10 +91,10 @@
     >
       <el-form ref="form" :model="form" :rules="rules" label-width="100px" status-icon>
         <el-form-item label="姓名:" prop="name">
-          <el-input v-model="form.name" placeholder="请输入客户姓名"></el-input>
+          <el-input v-model="form.name" placeholder="请输入客户姓名" disabled></el-input>
         </el-form-item>
         <el-form-item label="账号:" prop="customerId">
-          <el-input v-model="form.customerId" placeholder="请输入客户账号" disabled></el-input>
+          <el-input v-model="form.customerId" placeholder="请输入客户账号"></el-input>
         </el-form-item>
         <el-form-item label="电话:" prop="phone">
           <el-input v-model="form.phone" placeholder="请输入联系电话"></el-input>
@@ -197,6 +197,14 @@ export default {
       pages: 0,
       // 编辑表单数据
       form: {
+        id: '',
+        name: '',
+        customerId: '',
+        password: '',
+        phone: ''
+      },
+      // 原始表单数据（用于比较是否变更）
+      originalForm: {
         id: '',
         name: '',
         customerId: '',
@@ -427,6 +435,7 @@ export default {
       
       this.idx = index;
       this.form = { ...row };
+      this.originalForm = { ...row }; // 保存原始数据用于比较
       this.editVisible = true;
     },
     
@@ -436,6 +445,19 @@ export default {
         const valid = await this.$refs.form.validate();
         
         if (!valid) return;
+        
+        // 检查信息是否有变更
+        const hasChanged = 
+          this.form.customerId !== this.originalForm.customerId ||
+          this.form.phone !== this.originalForm.phone;
+        
+        // 姓名不可修改，所以不需要比较
+        
+        if (!hasChanged) {
+          this.editVisible = false;
+          this.$message.info('信息未变更');
+          return;
+        }
         
         const data = {
           "id": this.form.id,

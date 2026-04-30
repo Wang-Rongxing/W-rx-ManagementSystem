@@ -11,7 +11,7 @@
     <div class="container">
       <!-- 搜索区域 -->
       <div class="search-box">
-        <el-input size="small" v-model="query.name" placeholder="用户名" class="handle-input mr10"></el-input>
+        <el-input size="small" v-model="query.name" placeholder="姓名" class="handle-input mr10"></el-input>
         <el-input size="small" v-model="query.employeeId" placeholder="工号" class="handle-input mr10"></el-input>
         <el-button size="small" type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
         <el-button size="small" @click="handlerest">重置</el-button>
@@ -27,7 +27,7 @@
           empty-text="暂无数据"
         >
           <el-table-column prop="id" label="ID" width="60" align="center"></el-table-column>
-          <el-table-column prop="name" label="用户名" min-width="150"></el-table-column>
+          <el-table-column prop="name" label="姓名" min-width="150"></el-table-column>
           <el-table-column prop="employeeId" label="工号" min-width="100"></el-table-column>
           
           <el-table-column label="权限" min-width="180">
@@ -317,6 +317,16 @@ export default {
         // 检查是否选择了权限
         if (!this.form.roleList || this.form.roleList.length === 0) {
           this.$message.warning('请至少选择一个权限');
+          return;
+        }
+        
+        // 检查权限是否发生变化
+        const originalRoleIds = (this.form.tempRoleList || []).map(role => role.id).sort();
+        const newRoleIds = this.form.roleList.map(role => role.id).sort();
+        
+        if (JSON.stringify(originalRoleIds) === JSON.stringify(newRoleIds)) {
+          this.$message.info('权限未变更');
+          this.editVisible = false;
           return;
         }
         

@@ -16,7 +16,7 @@
 
       <!-- 搜索区域 -->
       <div class="search-box">
-        <el-input size="small" v-model="query.username" placeholder="用户名" class="handle-input mr10"></el-input>
+        <el-input size="small" v-model="query.username" placeholder="姓名" class="handle-input mr10"></el-input>
         <el-input size="small" v-model="query.employeeId" placeholder="工号" class="handle-input mr10"></el-input>
         <el-button size="small" type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
         <el-button size="small" @click="handlerest">重置</el-button>
@@ -32,7 +32,7 @@
           empty-text="暂无数据"
         >
           <el-table-column prop="id" label="ID" width="60" align="center"></el-table-column>
-          <el-table-column prop="name" label="用户名" min-width="120"></el-table-column>
+          <el-table-column prop="name" label="姓名" min-width="120"></el-table-column>
           <el-table-column prop="employeeId" label="工号" min-width="100"></el-table-column>
           <el-table-column prop="phone" label="电话" min-width="120"></el-table-column>
           <el-table-column label="操作" width="200" align="center">
@@ -128,7 +128,7 @@ export default {
     const validateEmployeeId = (rule, value, callback) => {
       const reg = /^\d{12}$/;
       if (!reg.test(value)) {
-        callback(new Error('工号必须是6位数字'));
+        callback(new Error('工号必须是12位数字'));
       } else {
         callback();
       }

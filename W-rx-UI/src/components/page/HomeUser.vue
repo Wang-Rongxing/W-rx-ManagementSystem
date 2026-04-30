@@ -10,7 +10,7 @@
         </div>
         <div class="employee-info">
           <p><strong>账号：</strong>{{ userInfo.jobId }}</p>
-          <p><strong>用户名：</strong>{{ userInfo.username }}</p>
+          <p><strong>姓名：</strong>{{ userInfo.username }}</p>
           <p><strong>角色：</strong>{{ userRoles }}</p>
         </div>
       </el-card>

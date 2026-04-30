@@ -344,13 +344,13 @@ export default {
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">
-                  <span class="label-text">用户名</span>
+                  <span class="label-text">账号</span>
                 </label>
                 <input 
                   type="text" 
                   v-model="userInfo.customerId"
                   class="form-input"
-                  placeholder="请输入用户名"
+                  placeholder="请输入姓名"
                   maxlength="20"
                 />
               </div>

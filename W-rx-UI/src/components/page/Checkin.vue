@@ -236,13 +236,20 @@ export default {
 
       try {
         const res = await ajaxGet('/checkin/selectbynameandphone', params);
-        if (res && res.records) {
-          this.tableData = res.records;
+        console.log('搜索返回数据:', res);
+        console.log('res.records:', res && res.records);
+        console.log('res.records长度:', res && res.records && res.records.length);
+        
+        if (res && res.records !== undefined) {
+          this.tableData = res.records || [];
           this.total = res.total || 0;
           this.pageSize = res.pageSize || this.pageSize;
           this.pageIndex = res.pageIndex || this.pageIndex;
+          
+          if (this.tableData.length === 0) {
+            this.$message.info('未找到匹配的入住记录');
+          }
         } else {
-          this.$message.error('获取入住数据失败');
           this.tableData = [];
           this.total = 0;
         }

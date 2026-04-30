@@ -203,11 +203,22 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
                 }
                 
                 // 查询符合条件的客户
-                List<Customer> customers = customerMapper.selectList(customerWrapper);
-                for (Customer customer : customers) {
-                    customerIds.add(customer.getId());
-                }
+            List<Customer> customers = customerMapper.selectList(customerWrapper);
+            for (Customer customer : customers) {
+                customerIds.add(customer.getId());
             }
+            
+            // 如果没有找到匹配的客户，直接返回空结果
+            if (customerIds.isEmpty()) {
+                result.put("code", "200");
+                result.put("message", "success");
+                result.put("records", new ArrayList<>());
+                result.put("total", 0);
+                result.put("pageSize", pageSize);
+                result.put("pageIndex", pageIndex);
+                return result;
+            }
+        }
             
             // 2. 创建入住记录查询条件
             QueryWrapper<CheckIn> checkInWrapper = new QueryWrapper<>();
