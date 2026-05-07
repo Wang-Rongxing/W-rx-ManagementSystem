@@ -58,7 +58,7 @@
 
                 class="book-button"
               >
-                预定
+                预订
               </el-button>
             </div>
           </el-card>
@@ -73,9 +73,9 @@
         </div>
     </div>
 
-    <!-- 预定表单对话框 -->
+    <!-- 预订表单对话框 -->
     <el-dialog
-      title="填写预定信息"
+      title="填写预订信息"
       :visible.sync="dialogVisible"
       width="600px"
     >
@@ -111,7 +111,7 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" @click="submitReservation" :loading="submitting">
-          {{ submitting ? '提交中...' : '确认预定' }}
+          {{ submitting ? '提交中...' : '确认预订' }}
         </el-button>
       </div>
     </el-dialog>
@@ -260,7 +260,7 @@ export default {
       });
     },
     
-    // 提交预定
+    // 提交预订
     submitReservation() {
       this.$refs.formRef.validate((valid) => {
         if (valid) {
@@ -283,20 +283,20 @@ export default {
                       this.$message.success('提交订单成功');
                       this.selectbyidandtypeandstatus();
                     } else {
-                      this.$message.error('预定失败，请稍后重试');
+                      this.$message.error('预订失败，请稍后重试');
                     }
                   })
                   .catch(err => {
                     this.submitting = false;
-                    console.error('预定失败:', err);
+                    console.error('预订失败:', err);
                     this.$message.error('网络错误，请检查网络连接');
                   })
               
             }, 1000);
           } catch (error) {
             this.submitting = false;
-            console.error('预定失败:', error);
-            this.$message.error('预定失败，请稍后重试');
+            console.error('预订失败:', error);
+            this.$message.error('预订失败，请稍后重试');
           }
         }
       });

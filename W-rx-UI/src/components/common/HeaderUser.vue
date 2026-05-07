@@ -7,7 +7,7 @@
     <div class="menu-container">
       <el-menu :default-active="activeIndex" mode="horizontal" @select="handleSelect" class="horizontal-menu">
         <el-menu-item index="1">首页</el-menu-item>
-        <el-menu-item index="2">预定客房</el-menu-item>
+        <el-menu-item index="2">预订客房</el-menu-item>
         <el-menu-item index="3">我的订单</el-menu-item>
         <el-menu-item index="4">历史入住</el-menu-item>
         <el-menu-item index="5">个人中心</el-menu-item>
